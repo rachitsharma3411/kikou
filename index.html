@@ -1,0 +1,1954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#f59e0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KIKOU">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="msapplication-TileColor" content="#0a0a0f">
+<meta name="description" content="KIKOU - Personal growth agent. Career, Social, French, Mindset coaching.">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>KIKOU - Your Future Self</title>
+<style>
+:root {
+  --bg-dark: #0a0a0f;
+  --bg-card: #12121a;
+  --bg-card-hover: #1a1a2e;
+  --accent: #f59e0b;
+  --accent-glow: rgba(245, 158, 11, 0.3);
+  --accent2: #8b5cf6;
+  --accent2-glow: rgba(139, 92, 246, 0.3);
+  --accent3: #10b981;
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --text-bright: #ffffff;
+  --danger: #ef4444;
+  --border: rgba(255,255,255,0.06);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg-dark);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Animated background */
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle at 30% 40%, rgba(245,158,11,0.03) 0%, transparent 50%),
+              radial-gradient(circle at 70% 60%, rgba(139,92,246,0.03) 0%, transparent 50%),
+              radial-gradient(circle at 50% 50%, rgba(16,185,129,0.02) 0%, transparent 50%);
+  animation: bgPulse 20s ease-in-out infinite;
+  z-index: 0;
+}
+
+@keyframes bgPulse {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(10deg); }
+}
+
+/* Top Header */
+.top-header {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 60px;
+  background: rgba(10,10,15,0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  z-index: 100;
+}
+
+.logo {
+  font-size: 24px; font-weight: 900;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: 3px;
+}
+
+.header-motto {
+  font-size: 12px; color: var(--text-dim); font-style: italic;
+  max-width: 300px; text-align: right;
+}
+
+.header-time {
+  font-size: 13px; color: var(--accent); font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Navigation */
+.nav {
+  position: fixed; top: 60px; left: 0; right: 0;
+  height: 56px;
+  background: rgba(18,18,26,0.95);
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  padding: 0 16px;
+  z-index: 99;
+  overflow-x: auto;
+}
+
+.nav-btn {
+  padding: 10px 18px;
+  border: none; background: transparent;
+  color: var(--text-dim); font-size: 13px; font-weight: 600;
+  cursor: pointer; border-radius: 10px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  position: relative;
+}
+
+.nav-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+.nav-btn.active {
+  color: var(--accent);
+  background: rgba(245,158,11,0.1);
+}
+
+.nav-btn.active::after {
+  content: '';
+  position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%);
+  width: 20px; height: 3px;
+  background: var(--accent); border-radius: 3px;
+}
+
+/* Main content */
+.main { padding: 136px 24px 40px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+
+.page { display: none; animation: fadeIn 0.4s ease; }
+.page.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: rgba(245,158,11,0.2);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+}
+
+.card-title {
+  font-size: 18px; font-weight: 700;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+
+.card-title .icon { font-size: 22px; }
+
+/* Grid layouts */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+
+/* Stat boxes */
+.stat-box {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-box:hover { transform: translateY(-2px); border-color: rgba(245,158,11,0.3); }
+
+.stat-number {
+  font-size: 36px; font-weight: 900;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.stat-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* Progress bars */
+.progress-track {
+  width: 100%; height: 8px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 1s ease;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+
+/* Buttons */
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #d97706);
+  color: #000;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 20px var(--accent-glow); }
+
+.btn-secondary {
+  background: rgba(139,92,246,0.15);
+  color: var(--accent2); border: 1px solid rgba(139,92,246,0.3);
+}
+.btn-secondary:hover { background: rgba(139,92,246,0.25); }
+
+.btn-ghost {
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.1); }
+
+/* Streak/habit tracker */
+.habit-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.habit-row:last-child { border-bottom: none; }
+
+.habit-name { font-weight: 600; font-size: 14px; }
+.habit-streak { font-size: 13px; color: var(--accent); font-weight: 700; }
+
+.habit-check {
+  width: 28px; height: 28px;
+  border: 2px solid var(--text-dim);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.habit-check.done {
+  background: var(--accent3);
+  border-color: var(--accent3);
+  color: #000;
+}
+
+/* Quote box */
+.quote-box {
+  background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(139,92,246,0.08));
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.quote-text {
+  font-size: 20px; font-weight: 700;
+  line-height: 1.5;
+  color: var(--text-bright);
+}
+
+.quote-sub {
+  font-size: 13px; color: var(--accent); margin-top: 12px;
+  font-weight: 600;
+}
+
+/* Chat interface */
+.chat-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  height: 500px;
+  display: flex; flex-direction: column;
+}
+
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 20px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+.chat-msg {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  animation: msgIn 0.3s ease;
+}
+
+@keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.chat-msg.kikou {
+  align-self: flex-start;
+  background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(139,92,246,0.08));
+  border: 1px solid rgba(245,158,11,0.15);
+  color: var(--text-bright);
+}
+
+.chat-msg.user {
+  align-self: flex-end;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--border);
+}
+
+.chat-msg .sender {
+  font-size: 11px; font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.chat-input-area {
+  display: flex; gap: 8px;
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  background: rgba(0,0,0,0.2);
+}
+
+.chat-input {
+  flex: 1;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.chat-input:focus { border-color: var(--accent); }
+
+.chat-send {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, var(--accent), #d97706);
+  border: none; border-radius: 12px;
+  color: #000; font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.chat-send:hover { transform: scale(1.05); }
+
+/* French section */
+.french-word {
+  background: rgba(139,92,246,0.1);
+  border: 1px solid rgba(139,92,246,0.2);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.french-word .word {
+  font-size: 22px; font-weight: 800; color: var(--accent2);
+}
+
+.french-word .meaning {
+  font-size: 13px; color: var(--text-dim); margin-top: 4px;
+}
+
+.french-word .example {
+  font-size: 13px; color: var(--text); margin-top: 8px;
+  font-style: italic;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+}
+
+/* Checklist */
+.checklist-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.checklist-item:last-child { border-bottom: none; }
+
+.check-circle {
+  width: 24px; height: 24px; min-width: 24px;
+  border: 2px solid var(--text-dim);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.check-circle.done { background: var(--accent3); border-color: var(--accent3); color: #000; }
+
+.checklist-text { font-size: 14px; line-height: 1.5; }
+.checklist-text.done { text-decoration: line-through; color: var(--text-dim); }
+
+/* Networking tracker */
+.contact-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 10px;
+  transition: all 0.3s;
+}
+
+.contact-card:hover { border-color: rgba(245,158,11,0.3); }
+
+.contact-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 16px; color: #000;
+}
+
+.contact-info { flex: 1; }
+.contact-name { font-weight: 700; font-size: 14px; }
+.contact-detail { font-size: 12px; color: var(--text-dim); }
+
+/* Affirmation banner */
+.affirmation-banner {
+  background: linear-gradient(135deg, #f59e0b, #d97706, #b45309);
+  border-radius: 16px;
+  padding: 20px 28px;
+  color: #000;
+  font-weight: 800;
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 24px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.affirmation-banner:hover { transform: scale(1.01); box-shadow: 0 8px 30px var(--accent-glow); }
+
+/* Journal textarea */
+.journal-area {
+  width: 100%;
+  min-height: 150px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.7;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.journal-area:focus { border-color: var(--accent); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav { gap: 2px; padding: 0 8px; }
+  .nav-btn { padding: 8px 12px; font-size: 11px; }
+  .main { padding: 136px 12px 24px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .quote-text { font-size: 16px; }
+  .stat-number { font-size: 28px; }
+}
+
+/* Input with label */
+.input-group { margin-bottom: 16px; }
+.input-label { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+.input-field {
+  width: 100%; padding: 12px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text); font-size: 14px;
+  outline: none; transition: border-color 0.3s;
+}
+.input-field:focus { border-color: var(--accent); }
+
+/* Tag */
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  margin: 3px;
+}
+
+.tag-gold { background: rgba(245,158,11,0.15); color: var(--accent); }
+.tag-purple { background: rgba(139,92,246,0.15); color: var(--accent2); }
+.tag-green { background: rgba(16,185,129,0.15); color: var(--accent3); }
+.tag-red { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+/* Banned word alert */
+.banned-alert {
+  display: none;
+  position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  padding: 16px 28px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 15px;
+  z-index: 200;
+  animation: shakeIn 0.5s ease;
+  box-shadow: 0 4px 30px rgba(239,68,68,0.4);
+  text-align: center;
+}
+
+@keyframes shakeIn {
+  0% { transform: translateX(-50%) scale(0.8); }
+  25% { transform: translateX(-50%) rotate(-3deg) scale(1.05); }
+  50% { transform: translateX(-50%) rotate(3deg) scale(1.05); }
+  75% { transform: translateX(-50%) rotate(-1deg) scale(1); }
+  100% { transform: translateX(-50%) rotate(0) scale(1); }
+}
+
+.level-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 20px;
+  font-size: 12px; font-weight: 800;
+  color: #000;
+}
+
+/* Splash screen */
+.splash {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg-dark);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 1000;
+  transition: opacity 0.8s ease, visibility 0.8s;
+}
+
+.splash.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.splash-logo {
+  font-size: 64px; font-weight: 900;
+  background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: 8px;
+  animation: splashPulse 2s ease-in-out infinite;
+}
+
+@keyframes splashPulse {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.05); filter: brightness(1.2); }
+}
+
+.splash-sub {
+  margin-top: 16px;
+  font-size: 16px;
+  color: var(--text-dim);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.splash-enter {
+  margin-top: 40px;
+  padding: 14px 40px;
+  background: linear-gradient(135deg, var(--accent), #d97706);
+  border: none; border-radius: 14px;
+  color: #000; font-size: 16px; font-weight: 800;
+  cursor: pointer;
+  letter-spacing: 2px;
+  transition: all 0.3s;
+}
+
+.splash-enter:hover { transform: scale(1.05); box-shadow: 0 8px 30px var(--accent-glow); }
+</style>
+</head>
+<body>
+
+<!-- Splash Screen -->
+<div class="splash" id="splash">
+  <div class="splash-logo">KIKOU</div>
+  <div class="splash-sub">Your Future Self Is Waiting</div>
+  <button class="splash-enter" onclick="enterApp()">ENTER</button>
+  <button class="splash-enter" id="installBtn" style="display:none; margin-top:12px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); font-size:14px; padding:12px 32px;" onclick="installApp()">
+    INSTALL AS APP
+  </button>
+</div>
+
+<!-- Banned word alert -->
+<div class="banned-alert" id="bannedAlert"></div>
+
+<!-- Header -->
+<div class="top-header">
+  <div class="logo">KIKOU</div>
+  <div class="header-time" id="headerTime"></div>
+  <div class="header-motto">"God has given you this opportunity for a reason."</div>
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <button class="nav-btn active" onclick="showPage('dashboard')">Dashboard</button>
+  <button class="nav-btn" onclick="showPage('morning')">Morning</button>
+  <button class="nav-btn" onclick="showPage('career')">Career</button>
+  <button class="nav-btn" onclick="showPage('social')">Social</button>
+  <button class="nav-btn" onclick="showPage('french')">French</button>
+  <button class="nav-btn" onclick="showPage('mindset')">Mindset</button>
+  <button class="nav-btn" onclick="showPage('journal')">Journal</button>
+  <button class="nav-btn" onclick="showPage('chat')">Talk to Kikou</button>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+
+  <!-- ========== DASHBOARD ========== -->
+  <div class="page active" id="page-dashboard">
+
+    <div class="affirmation-banner" id="affirmationBanner" onclick="nextAffirmation()">
+      Loading your daily fire...
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="icon">&#9889;</span> Today's Power Stats</div>
+        <div class="grid-3">
+          <div class="stat-box">
+            <div class="stat-number" id="statStreak">0</div>
+            <div class="stat-label">Day Streak</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number" id="statXP">0</div>
+            <div class="stat-label">Kikou XP</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number" id="statLevel">1</div>
+            <div class="stat-label">Level</div>
+          </div>
+        </div>
+        <div style="margin-top: 16px;">
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); margin-bottom: 4px;">
+            <span>Progress to next level</span>
+            <span id="xpProgress">0/100 XP</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="xpBar" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">&#127919;</span> Today's Missions</div>
+        <div id="dailyMissions"></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128293;</span> Habit Tracker</div>
+        <div id="habitTracker"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128200;</span> Growth Areas</div>
+        <div id="growthAreas"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128165;</span> Banned Words Monitor</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">These phrases are DELETED from your vocabulary. Kikou will call you out.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+        <span class="tag tag-red">"I don't know"</span>
+        <span class="tag tag-red">"I can't"</span>
+        <span class="tag tag-red">"I'm not sure"</span>
+        <span class="tag tag-red">"Maybe later"</span>
+        <span class="tag tag-red">"It's too hard"</span>
+        <span class="tag tag-red">"I'm boring"</span>
+      </div>
+      <div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px;">
+        <span class="tag tag-green">"Let me figure it out"</span>
+        <span class="tag tag-green">"I'll find a way"</span>
+        <span class="tag tag-green">"Here's what I think"</span>
+        <span class="tag tag-green">"Let's do it now"</span>
+        <span class="tag tag-green">"I bring energy"</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MORNING ROUTINE ========== -->
+  <div class="page" id="page-morning">
+    <div class="quote-box">
+      <div class="quote-text" id="morningQuote">Rise and build, Rachit.</div>
+      <div class="quote-sub">KIKOU MORNING PROTOCOL</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#9728;&#65039;</span> Morning Power Routine</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">Complete each step. No shortcuts. Future Rachit doesn't skip.</p>
+      <div id="morningChecklist"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128170;</span> Today's Intention</div>
+      <div class="input-group">
+        <div class="input-label">What will you CONQUER today?</div>
+        <input class="input-field" id="dailyIntention" placeholder="Today I will..." onkeydown="if(event.key==='Enter') saveIntention()">
+      </div>
+      <button class="btn btn-primary" onclick="saveIntention()">Lock it in</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#127891;</span> French Word of the Morning</div>
+      <div id="morningFrenchWord"></div>
+    </div>
+  </div>
+
+  <!-- ========== CAREER ========== -->
+  <div class="page" id="page-career">
+    <div class="quote-box">
+      <div class="quote-text">McKinsey. BCG. Bain. One of them has YOUR name on the door.</div>
+      <div class="quote-sub">CAREER COMMAND CENTER</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128188;</span> Target Firms</div>
+        <div class="contact-card">
+          <div class="contact-avatar">M</div>
+          <div class="contact-info">
+            <div class="contact-name">McKinsey & Company</div>
+            <div class="contact-detail">The gold standard. Strategy consulting.</div>
+          </div>
+          <span class="tag tag-gold">Target</span>
+        </div>
+        <div class="contact-card">
+          <div class="contact-avatar">B</div>
+          <div class="contact-info">
+            <div class="contact-name">Boston Consulting Group</div>
+            <div class="contact-detail">Innovation-driven consulting.</div>
+          </div>
+          <span class="tag tag-gold">Target</span>
+        </div>
+        <div class="contact-card">
+          <div class="contact-avatar">B</div>
+          <div class="contact-info">
+            <div class="contact-name">Bain & Company</div>
+            <div class="contact-detail">Results-focused. Private equity strength.</div>
+          </div>
+          <span class="tag tag-gold">Target</span>
+        </div>
+        <div class="contact-card">
+          <div class="contact-avatar">D</div>
+          <div class="contact-info">
+            <div class="contact-name">Deloitte Strategy</div>
+            <div class="contact-detail">Big 4 with consulting power.</div>
+          </div>
+          <span class="tag tag-purple">Strong</span>
+        </div>
+        <div class="contact-card">
+          <div class="contact-avatar">K</div>
+          <div class="contact-info">
+            <div class="contact-name">Kearney</div>
+            <div class="contact-detail">Operations consulting excellence.</div>
+          </div>
+          <span class="tag tag-purple">Strong</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128218;</span> Case Interview Prep</div>
+        <div id="caseTracker"></div>
+        <button class="btn btn-secondary" style="margin-top: 16px;" onclick="generateCase()">Generate Practice Case</button>
+        <div id="caseContent" style="margin-top: 16px;"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128640;</span> Weekly Career Tasks</div>
+      <div id="careerTasks"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128176;</span> Salary Target Tracker</div>
+      <div class="grid-3">
+        <div class="stat-box">
+          <div class="stat-number" style="font-size: 24px;">100K+</div>
+          <div class="stat-label">Target Package (EUR)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" style="font-size: 24px;">Paris</div>
+          <div class="stat-label">Target City #1</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" style="font-size: 24px;">London</div>
+          <div class="stat-label">Target City #2</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SOCIAL ========== -->
+  <div class="page" id="page-social">
+    <div class="quote-box">
+      <div class="quote-text">You don't find people boring. Boring people don't find YOU. Show up and SHINE.</div>
+      <div class="quote-sub">SOCIAL MAGNETISM ENGINE</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128172;</span> Daily Social Challenges</div>
+        <div id="socialChallenges"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">&#129309;</span> Networking Log</div>
+        <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">Track people you connect with. Build your empire of relationships.</p>
+        <div id="networkLog"></div>
+        <div style="margin-top: 16px;">
+          <div class="input-group">
+            <input class="input-field" id="newContactName" placeholder="Name">
+          </div>
+          <div class="input-group">
+            <input class="input-field" id="newContactContext" placeholder="Where did you meet? What did you talk about?">
+          </div>
+          <button class="btn btn-primary" onclick="addContact()">Add Connection</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128161;</span> Conversation Starters</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">Never be boring again. Use these to open conversations like a pro.</p>
+      <div id="convStarters"></div>
+      <button class="btn btn-secondary" style="margin-top: 12px;" onclick="refreshStarters()">Give me new ones</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128171;</span> Social Rules of Kikou</div>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div class="checklist-item" style="border: none; padding: 8px 0;">
+          <span style="font-size: 18px;">1.</span>
+          <span class="checklist-text"><strong>Talk to 3 new people every day.</strong> No exceptions.</span>
+        </div>
+        <div class="checklist-item" style="border: none; padding: 8px 0;">
+          <span style="font-size: 18px;">2.</span>
+          <span class="checklist-text"><strong>Ask questions, don't just answer.</strong> People love talking about themselves.</span>
+        </div>
+        <div class="checklist-item" style="border: none; padding: 8px 0;">
+          <span style="font-size: 18px;">3.</span>
+          <span class="checklist-text"><strong>Remember names.</strong> Say it 3 times in the first conversation.</span>
+        </div>
+        <div class="checklist-item" style="border: none; padding: 8px 0;">
+          <span style="font-size: 18px;">4.</span>
+          <span class="checklist-text"><strong>Follow up within 24 hours.</strong> Send a message. Stay on their radar.</span>
+        </div>
+        <div class="checklist-item" style="border: none; padding: 8px 0;">
+          <span style="font-size: 18px;">5.</span>
+          <span class="checklist-text"><strong>Never say "I'm boring."</strong> You're an ENFP. You are ENERGY. Own it.</span>
+        </div>
+        <div class="checklist-item" style="border: none; padding: 8px 0;">
+          <span style="font-size: 18px;">6.</span>
+          <span class="checklist-text"><strong>Host something.</strong> Dinners, study groups, weekend plans. Leaders gather people.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== FRENCH ========== -->
+  <div class="page" id="page-french">
+    <div class="quote-box">
+      <div class="quote-text">Tu vis en France. Tu PARLES fran&ccedil;ais. Pas d'excuses.</div>
+      <div class="quote-sub">FRENCH MASTERY ZONE</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128214;</span> Today's Vocabulary (5 Words)</div>
+        <div id="frenchVocab"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128483;&#65039;</span> Business French Phrases</div>
+        <div id="businessFrench"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#9997;&#65039;</span> French Practice Zone</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">Write something in French every day. Even one sentence. Kikou will track it.</p>
+      <textarea class="journal-area" id="frenchPractice" placeholder="Ecris quelque chose en fran&#231;ais ici... (Write something in French here)"></textarea>
+      <div style="margin-top: 12px; display: flex; gap: 8px;">
+        <button class="btn btn-primary" onclick="saveFrenchPractice()">Save Practice</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128200;</span> French Level Progress</div>
+      <div class="grid-3">
+        <div class="stat-box">
+          <div class="stat-number" style="font-size: 28px;">B1</div>
+          <div class="stat-label">Current Level</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" style="font-size: 28px;">B2</div>
+          <div class="stat-label">Next Target</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" style="font-size: 28px;">C1</div>
+          <div class="stat-label">Ultimate Goal</div>
+        </div>
+      </div>
+      <div style="margin-top: 16px;">
+        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim);">
+          <span>A1</span><span>A2</span><span>B1</span><span>B2</span><span>C1</span><span>C2</span>
+        </div>
+        <div class="progress-track" style="height: 12px; margin-top: 4px;">
+          <div class="progress-fill" style="width: 50%; background: linear-gradient(90deg, var(--accent3), var(--accent2));"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#127919;</span> Daily French Rules</div>
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 14px;">
+        <p>1. <strong>Order coffee in French every morning.</strong> No English.</p>
+        <p>2. <strong>Watch 15 min of French content</strong> (news, YouTube, Netflix FR).</p>
+        <p>3. <strong>Learn 5 new words daily</strong> and use them in a sentence.</p>
+        <p>4. <strong>Text one classmate in French.</strong> Even "Salut, &#231;a va ?"</p>
+        <p>5. <strong>Think in French for 10 minutes.</strong> Narrate your day silently.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MINDSET ========== -->
+  <div class="page" id="page-mindset">
+    <div class="quote-box">
+      <div class="quote-text">You're not lost. You're loading. And the loading screen is almost done.</div>
+      <div class="quote-sub">MINDSET REPROGRAMMING</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128142;</span> Core Identity Statements</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">Read these out loud every morning. This is who you ARE, not who you wish to be.</p>
+      <div id="identityStatements"></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128165;</span> Reframe Your Weaknesses</div>
+        <div id="reframes"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">&#127775;</span> Future Rachit Visualisation</div>
+        <div style="font-size: 14px; line-height: 1.8; color: var(--text);">
+          <p>Close your eyes. See this clearly:</p>
+          <p style="margin-top: 12px; padding: 16px; background: rgba(245,158,11,0.05); border-radius: 12px; border-left: 3px solid var(--accent);">
+            You walk into a glass office in Paris. You're wearing a tailored suit. Your phone buzzes with messages from friends across Europe.
+            You just closed a strategy project for a Fortune 500 client. Your team respects you. Your salary hits your account and you smile.
+            Tonight, you're hosting dinner at your apartment. 8 people. 4 languages spoken. Everyone is laughing.
+            You are <strong>Kikou</strong>. You are <strong>Rachit</strong>. You made it happen.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128736;&#65039;</span> Pattern Breakers</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">When you catch yourself in old patterns, execute these:</p>
+      <div id="patternBreakers"></div>
+    </div>
+  </div>
+
+  <!-- ========== JOURNAL ========== -->
+  <div class="page" id="page-journal">
+    <div class="quote-box">
+      <div class="quote-text">Document the journey. Future Rachit will read this and be proud.</div>
+      <div class="quote-sub">KIKOU JOURNAL</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128221;</span> Today's Entry</div>
+      <div class="input-group">
+        <div class="input-label">3 wins from today (even small ones)</div>
+        <textarea class="journal-area" id="journalWins" placeholder="1. &#10;2. &#10;3. " style="min-height: 100px;"></textarea>
+      </div>
+      <div class="input-group">
+        <div class="input-label">1 thing you could have done better</div>
+        <input class="input-field" id="journalImprove" placeholder="Next time I will...">
+      </div>
+      <div class="input-group">
+        <div class="input-label">Who did you connect with today?</div>
+        <input class="input-field" id="journalConnect" placeholder="Names and what you talked about">
+      </div>
+      <div class="input-group">
+        <div class="input-label">Rate your energy today (1-10)</div>
+        <input class="input-field" id="journalEnergy" type="number" min="1" max="10" placeholder="1-10">
+      </div>
+      <button class="btn btn-primary" onclick="saveJournal()">Save Journal Entry</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128197;</span> Past Entries</div>
+      <div id="pastEntries"><p style="color: var(--text-dim); font-size: 13px;">Your journey starts today. No past entries yet.</p></div>
+    </div>
+  </div>
+
+  <!-- ========== CHAT ========== -->
+  <div class="page" id="page-chat">
+    <div class="chat-container">
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-msg kikou">
+          <div class="sender">KIKOU (Future You)</div>
+          Hey Rachit. I'm you, but the version that already made it. The version with the consulting job, the packed social calendar, the French flowing like water. Ask me anything. I'll give you the truth, the hype, and the plan. Let's build. What's on your mind?
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <input class="chat-input" id="chatInput" placeholder="Talk to your future self..." onkeydown="if(event.key==='Enter') sendChat()">
+        <button class="chat-send" onclick="sendChat()">SEND</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===========================
+// KIKOU ENGINE - Core System
+// ===========================
+
+const STORAGE_KEY = 'kikou_data';
+
+function loadData() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || getDefaultData();
+  } catch { return getDefaultData(); }
+}
+
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function getDefaultData() {
+  return {
+    xp: 0,
+    level: 1,
+    streak: 0,
+    lastActiveDate: null,
+    habits: {},
+    missions: {},
+    morningDone: {},
+    contacts: [],
+    journalEntries: [],
+    frenchPractices: [],
+    careerTasks: {},
+    socialChallenges: {},
+    intentions: []
+  };
+}
+
+let data = loadData();
+
+// ===========================
+// TIME & STREAK
+// ===========================
+
+function updateTime() {
+  const now = new Date();
+  const opts = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+  const day = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  document.getElementById('headerTime').textContent = `${day} | ${now.toLocaleTimeString('en-US', opts)}`;
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+function checkStreak() {
+  const today = new Date().toDateString();
+  if (data.lastActiveDate === today) return;
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  if (data.lastActiveDate === yesterday) {
+    data.streak++;
+  } else if (data.lastActiveDate !== today) {
+    data.streak = 1;
+  }
+  data.lastActiveDate = today;
+  saveData(data);
+}
+
+function addXP(amount) {
+  data.xp += amount;
+  const xpForLevel = data.level * 100;
+  while (data.xp >= xpForLevel) {
+    data.xp -= xpForLevel;
+    data.level++;
+  }
+  saveData(data);
+  updateStats();
+}
+
+function updateStats() {
+  document.getElementById('statStreak').textContent = data.streak;
+  document.getElementById('statXP').textContent = data.xp;
+  document.getElementById('statLevel').textContent = data.level;
+  const xpForLevel = data.level * 100;
+  const pct = Math.min((data.xp / xpForLevel) * 100, 100);
+  document.getElementById('xpBar').style.width = pct + '%';
+  document.getElementById('xpProgress').textContent = `${data.xp}/${xpForLevel} XP`;
+}
+
+// ===========================
+// NAVIGATION
+// ===========================
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function enterApp() {
+  document.getElementById('splash').classList.add('hidden');
+  checkStreak();
+  updateStats();
+}
+
+// ===========================
+// AFFIRMATIONS
+// ===========================
+
+const affirmations = [
+  "GOD HAS GIVEN YOU THIS OPPORTUNITY FOR A REASON. DON'T WASTE IT.",
+  "YOU ARE NOT BORING. YOU ARE AN ENFP POWERHOUSE. OWN YOUR ENERGY.",
+  "MCKINSEDY, BCG, BAIN - ONE OF THEM IS WAITING FOR YOU. PREPARE.",
+  "EVERY PERSON YOU MEET IS A DOOR. OPEN ALL OF THEM.",
+  "TU VIS EN FRANCE. PARLE FRANCAIS. SOIS KIKOU.",
+  "PEOPLE LEAVE? BUILD A TABLE SO BIG THEY BEG TO COME BACK.",
+  "'I DON'T KNOW' IS DEAD. 'I'LL FIGURE IT OUT' IS YOUR NEW LANGUAGE.",
+  "YOU ARE 28. THIS IS YOUR PRIME. EVERY DAY COUNTS.",
+  "THE AUDENCIA MBA IS YOUR LAUNCHPAD. USE EVERY SECOND OF IT.",
+  "FUTURE RACHIT IS RICH, CONNECTED, MULTILINGUAL. START BEING HIM NOW.",
+  "STOP PUSHING PEOPLE AWAY. PULL THEM IN WITH YOUR ENERGY.",
+  "YOU HAVE MANY NAMES. KIKOU IS THE ONE THAT WINS.",
+  "YOUR NETWORK IS YOUR NET WORTH. BUILD IT EVERY SINGLE DAY.",
+  "CONFIDENCE ISN'T BORN. IT'S BUILT. REP BY REP. DAY BY DAY.",
+  "YOU DON'T NEED ANYONE TO VALIDATE YOU. YOU VALIDATE YOURSELF."
+];
+
+let affIdx = 0;
+function nextAffirmation() {
+  affIdx = (affIdx + 1) % affirmations.length;
+  document.getElementById('affirmationBanner').textContent = affirmations[affIdx];
+}
+
+// ===========================
+// DAILY MISSIONS
+// ===========================
+
+function renderMissions() {
+  const today = new Date().toDateString();
+  if (!data.missions[today]) {
+    data.missions[today] = [
+      { text: 'Complete morning routine', done: false },
+      { text: 'Talk to 3 new people', done: false },
+      { text: 'Learn 5 French words', done: false },
+      { text: 'Practice 1 case interview question', done: false },
+      { text: 'Write in journal tonight', done: false },
+      { text: 'No banned words today', done: false }
+    ];
+    saveData(data);
+  }
+  const el = document.getElementById('dailyMissions');
+  el.innerHTML = data.missions[today].map((m, i) => `
+    <div class="checklist-item">
+      <div class="check-circle ${m.done ? 'done' : ''}" onclick="toggleMission(${i})">${m.done ? '&#10003;' : ''}</div>
+      <span class="checklist-text ${m.done ? 'done' : ''}">${m.text}</span>
+    </div>
+  `).join('');
+}
+
+function toggleMission(i) {
+  const today = new Date().toDateString();
+  data.missions[today][i].done = !data.missions[today][i].done;
+  if (data.missions[today][i].done) addXP(15);
+  saveData(data);
+  renderMissions();
+}
+
+// ===========================
+// HABITS
+// ===========================
+
+const habits = [
+  { name: 'Wake up before 7:30', key: 'wake' },
+  { name: 'Exercise / Walk 30 min', key: 'exercise' },
+  { name: 'French practice', key: 'french' },
+  { name: 'Read 20 pages', key: 'read' },
+  { name: 'No "I don\'t know"', key: 'noIDK' },
+  { name: 'Talk to someone new', key: 'social' },
+  { name: 'Meditate 5 min', key: 'meditate' }
+];
+
+function renderHabits() {
+  const today = new Date().toDateString();
+  if (!data.habits[today]) { data.habits[today] = {}; saveData(data); }
+  const el = document.getElementById('habitTracker');
+  el.innerHTML = habits.map(h => {
+    const done = data.habits[today][h.key] || false;
+    const streak = getHabitStreak(h.key);
+    return `
+      <div class="habit-row">
+        <span class="habit-name">${h.name}</span>
+        <span class="habit-streak">${streak > 0 ? streak + ' day streak' : ''}</span>
+        <div class="habit-check ${done ? 'done' : ''}" onclick="toggleHabit('${h.key}')">
+          ${done ? '&#10003;' : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleHabit(key) {
+  const today = new Date().toDateString();
+  if (!data.habits[today]) data.habits[today] = {};
+  data.habits[today][key] = !data.habits[today][key];
+  if (data.habits[today][key]) addXP(10);
+  saveData(data);
+  renderHabits();
+}
+
+function getHabitStreak(key) {
+  let streak = 0;
+  let d = new Date();
+  for (let i = 0; i < 365; i++) {
+    const ds = d.toDateString();
+    if (data.habits[ds] && data.habits[ds][key]) { streak++; }
+    else if (i > 0) break;
+    d = new Date(d.getTime() - 86400000);
+  }
+  return streak;
+}
+
+// ===========================
+// GROWTH AREAS
+// ===========================
+
+function renderGrowthAreas() {
+  const areas = [
+    { name: 'Social Confidence', pct: 35, color: 'var(--accent)' },
+    { name: 'French Language', pct: 50, color: 'var(--accent2)' },
+    { name: 'Career Readiness', pct: 30, color: 'var(--accent3)' },
+    { name: 'Networking', pct: 25, color: '#ec4899' },
+    { name: 'Mindset / Self-talk', pct: 40, color: '#06b6d4' }
+  ];
+  document.getElementById('growthAreas').innerHTML = areas.map(a => `
+    <div style="margin-bottom: 14px;">
+      <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+        <span style="font-weight: 600;">${a.name}</span>
+        <span style="color: var(--text-dim);">${a.pct}%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" style="width: ${a.pct}%; background: ${a.color};"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===========================
+// MORNING ROUTINE
+// ===========================
+
+const morningQuotes = [
+  "Rise and build, Rachit. Today is another chance to become Kikou.",
+  "The person you will be in 5 years starts with what you do THIS morning.",
+  "Your future self is watching. Make them proud before breakfast.",
+  "Every morning is a new stage. Walk on it like you own it.",
+  "Tu es en France. Tu es vivant. Tu es Kikou. Bonjour, champion."
+];
+
+function renderMorningRoutine() {
+  document.getElementById('morningQuote').textContent = morningQuotes[Math.floor(Math.random() * morningQuotes.length)];
+  const today = new Date().toDateString();
+  if (!data.morningDone[today]) { data.morningDone[today] = {}; saveData(data); }
+
+  const steps = [
+    { key: 'water', text: 'Drink a glass of water immediately' },
+    { key: 'affirmation', text: 'Read your identity statements out loud (Mindset tab)' },
+    { key: 'stretch', text: '5 minutes stretching or exercise' },
+    { key: 'french5', text: 'Learn your 5 French words of the day' },
+    { key: 'intention', text: 'Set your daily intention below' },
+    { key: 'outfit', text: 'Dress sharp. Look like you already have the job.' },
+    { key: 'smile', text: 'Look in the mirror and say: "I am Kikou. Today I win."' }
+  ];
+
+  document.getElementById('morningChecklist').innerHTML = steps.map(s => {
+    const done = data.morningDone[today][s.key] || false;
+    return `
+      <div class="checklist-item">
+        <div class="check-circle ${done ? 'done' : ''}" onclick="toggleMorning('${s.key}')">
+          ${done ? '&#10003;' : ''}
+        </div>
+        <span class="checklist-text ${done ? 'done' : ''}">${s.text}</span>
+      </div>
+    `;
+  }).join('');
+
+  renderMorningFrenchWord();
+}
+
+function toggleMorning(key) {
+  const today = new Date().toDateString();
+  data.morningDone[today][key] = !data.morningDone[today][key];
+  if (data.morningDone[today][key]) addXP(10);
+  saveData(data);
+  renderMorningRoutine();
+}
+
+function saveIntention() {
+  const val = document.getElementById('dailyIntention').value.trim();
+  if (!val) return;
+  checkBannedWords(val);
+  data.intentions.push({ date: new Date().toISOString(), text: val });
+  saveData(data);
+  addXP(15);
+  document.getElementById('dailyIntention').value = '';
+  alert('Intention locked in! Now go execute.');
+}
+
+// ===========================
+// FRENCH MODULE
+// ===========================
+
+const frenchVocabSets = [
+  [
+    { word: 'Cependant', meaning: 'However / Nevertheless', example: 'Cependant, il faut noter que le march\u00e9 a chang\u00e9.' },
+    { word: 'Atteindre', meaning: 'To reach / To achieve', example: "J'aimerais atteindre mes objectifs cette ann\u00e9e." },
+    { word: 'D\u00e9marche', meaning: 'Approach / Process', example: 'Quelle est votre d\u00e9marche pour ce projet ?' },
+    { word: '\u00c9panouissement', meaning: 'Fulfillment / Blossoming', example: "L'\u00e9panouissement personnel est tr\u00e8s important." },
+    { word: 'R\u00e9seau', meaning: 'Network', example: 'Il faut d\u00e9velopper son r\u00e9seau professionnel.' }
+  ],
+  [
+    { word: 'Enjeu', meaning: 'Stake / Issue / Challenge', example: 'Les enjeux du march\u00e9 sont complexes.' },
+    { word: 'Rentable', meaning: 'Profitable', example: 'Ce projet est tr\u00e8s rentable.' },
+    { word: 'Prise de d\u00e9cision', meaning: 'Decision-making', example: 'La prise de d\u00e9cision est cruciale en management.' },
+    { word: 'Aboutir', meaning: 'To lead to / To result in', example: 'Ce travail va aboutir \u00e0 de bons r\u00e9sultats.' },
+    { word: 'Valoriser', meaning: 'To value / To enhance', example: 'Il faut valoriser vos comp\u00e9tences.' }
+  ],
+  [
+    { word: 'Pertinent', meaning: 'Relevant / Pertinent', example: 'Votre analyse est tr\u00e8s pertinente.' },
+    { word: 'Mettre en \u0153uvre', meaning: 'To implement', example: 'Nous allons mettre en \u0153uvre cette strat\u00e9gie.' },
+    { word: 'Concurrentiel', meaning: 'Competitive', example: "L'avantage concurrentiel est essentiel." },
+    { word: 'Encadrer', meaning: 'To supervise / To frame', example: 'Elle sait encadrer son \u00e9quipe efficacement.' },
+    { word: 'Bienveillant', meaning: 'Kind / Benevolent', example: 'Soyez bienveillant avec les autres.' }
+  ],
+  [
+    { word: 'Notamment', meaning: 'In particular / Notably', example: 'Notamment dans le secteur technologique.' },
+    { word: 'Croissance', meaning: 'Growth', example: 'La croissance \u00e9conomique est forte.' },
+    { word: 'Partie prenante', meaning: 'Stakeholder', example: 'Les parties prenantes doivent \u00eatre consult\u00e9es.' },
+    { word: 'Fid\u00e9liser', meaning: 'To build loyalty / To retain', example: 'Comment fid\u00e9liser les clients ?' },
+    { word: 'Audacieux', meaning: 'Bold / Daring', example: 'Soyez audacieux dans vos d\u00e9cisions.' }
+  ]
+];
+
+const businessPhrases = [
+  { fr: "Je suis convaincu que cette strat\u00e9gie va fonctionner.", en: "I am convinced that this strategy will work." },
+  { fr: "Pourriez-vous me donner plus de d\u00e9tails ?", en: "Could you give me more details?" },
+  { fr: "Je propose une approche diff\u00e9rente.", en: "I suggest a different approach." },
+  { fr: "Les r\u00e9sultats montrent une tendance positive.", en: "The results show a positive trend." },
+  { fr: "Quel est le retour sur investissement ?", en: "What is the return on investment?" },
+  { fr: "Il faut prioriser les actions cl\u00e9s.", en: "We need to prioritize key actions." },
+  { fr: "Je suis disponible pour en discuter.", en: "I am available to discuss this." },
+  { fr: "Quels sont les risques associ\u00e9s ?", en: "What are the associated risks?" }
+];
+
+function renderFrench() {
+  const dayIdx = new Date().getDay() % frenchVocabSets.length;
+  const words = frenchVocabSets[dayIdx];
+  document.getElementById('frenchVocab').innerHTML = words.map(w => `
+    <div class="french-word">
+      <div class="word">${w.word}</div>
+      <div class="meaning">${w.meaning}</div>
+      <div class="example">${w.example}</div>
+    </div>
+  `).join('');
+
+  const shuffled = [...businessPhrases].sort(() => 0.5 - Math.random()).slice(0, 4);
+  document.getElementById('businessFrench').innerHTML = shuffled.map(p => `
+    <div class="french-word">
+      <div class="word" style="font-size: 16px;">${p.fr}</div>
+      <div class="meaning">${p.en}</div>
+    </div>
+  `).join('');
+}
+
+function renderMorningFrenchWord() {
+  const dayIdx = new Date().getDay() % frenchVocabSets.length;
+  const word = frenchVocabSets[dayIdx][0];
+  document.getElementById('morningFrenchWord').innerHTML = `
+    <div class="french-word">
+      <div class="word">${word.word}</div>
+      <div class="meaning">${word.meaning}</div>
+      <div class="example">${word.example}</div>
+    </div>
+  `;
+}
+
+function saveFrenchPractice() {
+  const text = document.getElementById('frenchPractice').value.trim();
+  if (!text) return;
+  data.frenchPractices.push({ date: new Date().toISOString(), text });
+  saveData(data);
+  addXP(20);
+  document.getElementById('frenchPractice').value = '';
+  alert('French practice saved! +20 XP. Bravo !');
+}
+
+// ===========================
+// CAREER MODULE
+// ===========================
+
+const caseTypes = [
+  {
+    title: 'Market Entry - European Tech Startup',
+    prompt: 'A German tech startup wants to enter the French market with their B2B SaaS product. They have 2M EUR in funding. How would you approach this?',
+    framework: 'Market sizing, competitive landscape, go-to-market strategy, pricing, partnerships'
+  },
+  {
+    title: 'Profitability - Luxury Retail Chain',
+    prompt: 'A French luxury retailer has seen profits decline 15% YoY despite stable revenue. Diagnose the problem and recommend solutions.',
+    framework: 'Revenue vs cost analysis, margin breakdown, operational efficiency, brand positioning'
+  },
+  {
+    title: 'Growth Strategy - Food Delivery',
+    prompt: 'A food delivery platform in Paris wants to 3x its user base in 18 months. What strategy would you recommend?',
+    framework: 'Customer acquisition, retention, unit economics, competitive advantage, scaling ops'
+  },
+  {
+    title: 'M&A - Pharmaceutical Company',
+    prompt: 'A mid-size pharma company is considering acquiring a biotech startup. Evaluate whether they should proceed.',
+    framework: 'Strategic fit, valuation, synergies, integration risks, regulatory considerations'
+  },
+  {
+    title: 'Digital Transformation - Traditional Bank',
+    prompt: 'A 100-year-old European bank is losing customers to neobanks. Design their digital transformation strategy.',
+    framework: 'Customer journey, technology stack, change management, competitive response, timeline'
+  }
+];
+
+function renderCareer() {
+  const today = new Date().toDateString();
+  if (!data.careerTasks[today]) {
+    data.careerTasks[today] = [
+      { text: 'Research one target company - read recent news/case studies', done: false },
+      { text: 'Practice one case framework (profitability, market entry, M&A)', done: false },
+      { text: 'Connect with one person on LinkedIn in consulting', done: false },
+      { text: 'Review your CV for 5 minutes - find one thing to improve', done: false },
+      { text: 'Read one article about strategy consulting trends', done: false }
+    ];
+    saveData(data);
+  }
+
+  document.getElementById('careerTasks').innerHTML = data.careerTasks[today].map((t, i) => `
+    <div class="checklist-item">
+      <div class="check-circle ${t.done ? 'done' : ''}" onclick="toggleCareerTask(${i})">
+        ${t.done ? '&#10003;' : ''}
+      </div>
+      <span class="checklist-text ${t.done ? 'done' : ''}">${t.text}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('caseTracker').innerHTML = `
+    <div class="stat-box" style="margin-bottom: 12px;">
+      <div class="stat-number" style="font-size: 24px;" id="caseCount">${data.casesStudied || 0}</div>
+      <div class="stat-label">Cases Studied</div>
+    </div>
+  `;
+}
+
+function toggleCareerTask(i) {
+  const today = new Date().toDateString();
+  data.careerTasks[today][i].done = !data.careerTasks[today][i].done;
+  if (data.careerTasks[today][i].done) addXP(15);
+  saveData(data);
+  renderCareer();
+}
+
+function generateCase() {
+  const c = caseTypes[Math.floor(Math.random() * caseTypes.length)];
+  document.getElementById('caseContent').innerHTML = `
+    <div class="card" style="background: rgba(245,158,11,0.05); border-color: rgba(245,158,11,0.2);">
+      <div style="font-weight: 800; font-size: 16px; color: var(--accent); margin-bottom: 8px;">${c.title}</div>
+      <p style="font-size: 14px; line-height: 1.6; margin-bottom: 12px;">${c.prompt}</p>
+      <p style="font-size: 12px; color: var(--text-dim);"><strong>Framework to use:</strong> ${c.framework}</p>
+      <button class="btn btn-ghost" style="margin-top: 12px;" onclick="markCaseStudied()">Mark as practiced (+25 XP)</button>
+    </div>
+  `;
+}
+
+function markCaseStudied() {
+  data.casesStudied = (data.casesStudied || 0) + 1;
+  addXP(25);
+  saveData(data);
+  renderCareer();
+  alert('Case practiced! Keep grinding. You\'re getting closer to that offer.');
+}
+
+// ===========================
+// SOCIAL MODULE
+// ===========================
+
+const socialChallengesPool = [
+  'Compliment someone genuinely today',
+  'Start a conversation with someone you\'ve never spoken to',
+  'Ask a classmate about their weekend plans',
+  'Invite someone for coffee after class',
+  'Send a LinkedIn connection request with a personal note',
+  'Share a funny story with a group',
+  'Ask someone about their culture/country',
+  'Organize a study group or lunch plan',
+  'Give someone your full attention for 5 minutes - no phone',
+  'Ask someone for advice on something (people love giving advice)',
+  'Text 3 people you haven\'t spoken to in a week',
+  'Sit next to someone new in class today'
+];
+
+const convStarterPool = [
+  '"What\'s the most interesting thing that happened to you this week?"',
+  '"If you could live anywhere in Europe, where would it be and why?"',
+  '"What did you do before the MBA? I\'m curious about your background."',
+  '"Have you found any amazing restaurants here? I need recommendations."',
+  '"What\'s your take on [recent class topic]? I found it fascinating."',
+  '"Are you planning any trips? I love hearing about travel plans."',
+  '"What\'s the best advice someone has given you about business?"',
+  '"If you weren\'t doing an MBA, what would you be doing right now?"',
+  '"What apps or tools are you using that you can\'t live without?"',
+  '"Do you have a side project or passion outside of school?"',
+  '"What language would you love to learn and why?"',
+  '"What\'s the biggest culture shock you\'ve experienced here?"'
+];
+
+function renderSocial() {
+  const today = new Date().toDateString();
+  if (!data.socialChallenges[today]) {
+    const shuffled = [...socialChallengesPool].sort(() => 0.5 - Math.random()).slice(0, 3);
+    data.socialChallenges[today] = shuffled.map(s => ({ text: s, done: false }));
+    saveData(data);
+  }
+
+  document.getElementById('socialChallenges').innerHTML = data.socialChallenges[today].map((c, i) => `
+    <div class="checklist-item">
+      <div class="check-circle ${c.done ? 'done' : ''}" onclick="toggleSocialChallenge(${i})">
+        ${c.done ? '&#10003;' : ''}
+      </div>
+      <span class="checklist-text ${c.done ? 'done' : ''}">${c.text}</span>
+    </div>
+  `).join('');
+
+  renderConvStarters();
+  renderContacts();
+}
+
+function toggleSocialChallenge(i) {
+  const today = new Date().toDateString();
+  data.socialChallenges[today][i].done = !data.socialChallenges[today][i].done;
+  if (data.socialChallenges[today][i].done) addXP(20);
+  saveData(data);
+  renderSocial();
+}
+
+function renderConvStarters() {
+  const shuffled = [...convStarterPool].sort(() => 0.5 - Math.random()).slice(0, 4);
+  document.getElementById('convStarters').innerHTML = shuffled.map(s => `
+    <div style="padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 8px; font-size: 14px; border-left: 3px solid var(--accent);">
+      ${s}
+    </div>
+  `).join('');
+}
+
+function refreshStarters() { renderConvStarters(); }
+
+function addContact() {
+  const name = document.getElementById('newContactName').value.trim();
+  const context = document.getElementById('newContactContext').value.trim();
+  if (!name) return;
+  data.contacts.push({ name, context, date: new Date().toISOString() });
+  saveData(data);
+  addXP(15);
+  document.getElementById('newContactName').value = '';
+  document.getElementById('newContactContext').value = '';
+  renderContacts();
+}
+
+function renderContacts() {
+  const el = document.getElementById('networkLog');
+  if (data.contacts.length === 0) {
+    el.innerHTML = '<p style="color: var(--text-dim); font-size: 13px;">No connections logged yet. Start building your empire.</p>';
+    return;
+  }
+  el.innerHTML = data.contacts.slice().reverse().slice(0, 10).map(c => `
+    <div class="contact-card">
+      <div class="contact-avatar">${c.name.charAt(0).toUpperCase()}</div>
+      <div class="contact-info">
+        <div class="contact-name">${c.name}</div>
+        <div class="contact-detail">${c.context || 'No context added'}</div>
+        <div class="contact-detail">${new Date(c.date).toLocaleDateString()}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===========================
+// MINDSET MODULE
+// ===========================
+
+function renderMindset() {
+  const statements = [
+    "I am Kikou. I am magnetic. People are drawn to my energy.",
+    "I am a future top consultant. Every case I study, every connection I make, builds toward that.",
+    "I speak French. I live in France. I am becoming fluent. No excuses.",
+    "I don't say 'I don't know.' I say 'Let me figure it out.'",
+    "I am not boring. I am an ENFP with stories, humor, and genuine curiosity.",
+    "People who leave were not meant for my journey. I attract the right ones.",
+    "My MBA at Audencia is a springboard. I will launch higher than anyone expects.",
+    "I am surrounded by abundance - women, friends, opportunities. I just need to show up.",
+    "I take time to understand, and that's a strength. Depth beats speed.",
+    "I am building a life so incredible that my past self wouldn't believe it."
+  ];
+
+  document.getElementById('identityStatements').innerHTML = statements.map((s, i) => `
+    <div style="padding: 14px 16px; background: rgba(245,158,11,${0.03 + i * 0.008}); border-radius: 10px; margin-bottom: 8px; font-size: 14px; font-weight: 600; border-left: 3px solid var(--accent);">
+      ${s}
+    </div>
+  `).join('');
+
+  const reframes = [
+    { old: '"I get attached easily"', new_: 'You love deeply. That\'s rare. Channel it - don\'t fight it. Choose people who deserve it.' },
+    { old: '"People leave me"', new_: 'People flow in and out of everyone\'s life. You\'re building a door so wide, the RIGHT people walk in.' },
+    { old: '"I push people away"', new_: 'You\'re protecting yourself. But Kikou doesn\'t need walls. Kikou is the castle.' },
+    { old: '"I get boring"', new_: 'You\'re an ENFP. You\'re literally one of the most interesting personality types. You just forgot. Kikou remembers.' },
+    { old: '"I forget things"', new_: 'Write everything down. Systems beat memory. Build systems, not excuses.' },
+    { old: '"I take time to understand"', new_: 'You understand DEEPLY. Fast thinkers forget fast. You remember because you process fully.' }
+  ];
+
+  document.getElementById('reframes').innerHTML = reframes.map(r => `
+    <div style="padding: 14px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 10px;">
+      <div style="font-size: 13px; color: var(--danger); margin-bottom: 6px;"><s>${r.old}</s></div>
+      <div style="font-size: 14px; color: var(--accent3); font-weight: 600;">${r.new_}</div>
+    </div>
+  `).join('');
+
+  const patterns = [
+    { trigger: 'Feeling like isolating', action: 'TEXT 1 PERSON immediately. Just "Hey, what are you up to?" That\'s it.' },
+    { trigger: 'About to say "I don\'t know"', action: 'STOP. Say "Let me think about it" or "Here\'s my take..." Give SOMETHING.' },
+    { trigger: 'Feeling boring / low energy', action: 'Stand up. Walk for 5 minutes. Put on your favorite song. Energy is a CHOICE.' },
+    { trigger: 'Comparing yourself to others', action: 'Write down 3 things YOU have that they don\'t. Your story is unique.' },
+    { trigger: 'Overthinking a rejection', action: 'Say out loud: "Not for me. NEXT." Then do something for yourself immediately.' },
+    { trigger: 'Avoiding French', action: 'Open your mouth and say ONE sentence in French. Just one. That breaks the dam.' }
+  ];
+
+  document.getElementById('patternBreakers').innerHTML = patterns.map(p => `
+    <div style="padding: 14px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 10px; display: flex; gap: 16px; align-items: flex-start;">
+      <div style="min-width: 80px;"><span class="tag tag-red">${p.trigger}</span></div>
+      <div style="font-size: 14px; font-weight: 600; color: var(--accent3);">${p.action}</div>
+    </div>
+  `).join('');
+}
+
+// ===========================
+// JOURNAL
+// ===========================
+
+function saveJournal() {
+  const wins = document.getElementById('journalWins').value.trim();
+  const improve = document.getElementById('journalImprove').value.trim();
+  const connect = document.getElementById('journalConnect').value.trim();
+  const energy = document.getElementById('journalEnergy').value;
+  if (!wins) { alert('Write at least your 3 wins!'); return; }
+  data.journalEntries.push({
+    date: new Date().toISOString(),
+    wins, improve, connect, energy: parseInt(energy) || 0
+  });
+  saveData(data);
+  addXP(30);
+  document.getElementById('journalWins').value = '';
+  document.getElementById('journalImprove').value = '';
+  document.getElementById('journalConnect').value = '';
+  document.getElementById('journalEnergy').value = '';
+  renderJournal();
+  alert('Journal saved! +30 XP. You\'re documenting your rise.');
+}
+
+function renderJournal() {
+  const el = document.getElementById('pastEntries');
+  if (data.journalEntries.length === 0) {
+    el.innerHTML = '<p style="color: var(--text-dim); font-size: 13px;">Your journey starts today. No past entries yet.</p>';
+    return;
+  }
+  el.innerHTML = data.journalEntries.slice().reverse().slice(0, 7).map(e => `
+    <div class="card" style="background: rgba(255,255,255,0.02);">
+      <div style="font-size: 12px; color: var(--accent); font-weight: 700; margin-bottom: 8px;">
+        ${new Date(e.date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+        ${e.energy ? `| Energy: ${'&#9889;'.repeat(Math.min(e.energy, 10))}` : ''}
+      </div>
+      <div style="font-size: 13px; margin-bottom: 6px;"><strong>Wins:</strong> ${e.wins}</div>
+      ${e.improve ? `<div style="font-size: 13px; margin-bottom: 6px;"><strong>Improve:</strong> ${e.improve}</div>` : ''}
+      ${e.connect ? `<div style="font-size: 13px;"><strong>Connected with:</strong> ${e.connect}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ===========================
+// CHAT WITH KIKOU
+// ===========================
+
+const kikouResponses = {
+  lonely: [
+    "Rachit, listen. You're in a room full of MBA students from around the world. These are YOUR people. Walk up to literally ANYONE and say 'Hey, what did you think of today\'s class?' That's it. That's the door opener. You're an ENFP - once you start talking, you LIGHT UP. The hard part is just starting. So start. RIGHT NOW.",
+    "Bro, you're not alone. You're just not INITIATING enough. People aren't avoiding you - they're busy with their own stuff. Be the one who gathers people. Text 3 classmates right now: 'Hey, want to grab coffee tomorrow?' Watch what happens."
+  ],
+  career: [
+    "McKinsey, BCG, Bain - they all want people with YOUR profile. International MBA, multicultural background, hungry. But they need to SEE you. Start attending consulting events. Connect with alumni on LinkedIn. Practice cases DAILY. You're not behind - you're loading. But the loading screen needs ACTION.",
+    "Here's the truth: you'll get the consulting job if you treat the prep like a job. 1 hour of cases per day. 2 networking messages per day. 1 company researched per week. Stack those bricks and the building goes UP."
+  ],
+  french: [
+    "Tu vis en France, fr\u00e8re! Start with this: today, order your coffee entirely in French. Tomorrow, have a 2-minute conversation with a shopkeeper. Next week, text your classmates in French. Small steps, but EVERY DAY. Your B1 becomes B2 becomes C1. But only if you OPEN YOUR MOUTH.",
+    "Your French isn't bad - it's UNUSED. The vocabulary is in your head, it just needs practice. Set your phone to French. Watch Netflix in French with French subtitles. Think in French for 10 minutes a day. Immerse yourself - you're literally IN France!"
+  ],
+  motivation: [
+    "Rachit. RACHIT. God gave you this opportunity for a REASON. You're 28, doing an international MBA in France, surrounded by brilliant people from every continent. Some people dream of this their whole lives. You're LIVING IT. So stop playing small. Show up FULLY. Be KIKOU.",
+    "You know what separates you from the person you want to be? Not talent. Not luck. Not intelligence. It's CONSISTENCY. Do the hard thing today. And tomorrow. And the day after. The compound effect will BLOW YOUR MIND."
+  ],
+  confidence: [
+    "You said you feel boring? Let me tell you something: ENFP is literally called 'The Campaigner.' You are naturally one of the most charismatic personality types on earth. You're not boring - you're just playing it safe. Stop censoring yourself. Say the funny thing. Tell the story. Be weird. Be YOU. That's what people actually love.",
+    "Confidence isn't something you have or don't have. It's something you DO. Stand tall. Speak clearly. Make eye contact. Smile first. Ask questions. These are ACTIONS, not feelings. Do the actions and the feeling follows."
+  ],
+  dating: [
+    "Women are attracted to men who are ON THEIR PATH. Focus on becoming the best version of you - the consulting career, the social skills, the French, the fitness - and attraction follows naturally. You don't chase. You ATTRACT. Be so interesting that people can't look away.",
+    "Here's the secret: be genuinely curious about her. Ask real questions. Listen to the answers. Remember details. Follow up later. That's it. That's what 90% of guys don't do. You're already different because you CARE. Now show it."
+  ],
+  default: [
+    "I hear you, Rachit. Whatever it is, here's what I know: you've survived 100% of your worst days. This one isn't even close. Take a breath. Make a plan. Execute the plan. That's the Kikou way.",
+    "You came to me because something's on your mind. Good. That means you're thinking. Now let's turn that thinking into DOING. What's ONE thing you can do in the next 10 minutes to move forward? Do that. Then come back and tell me about it."
+  ]
+};
+
+function detectTopic(msg) {
+  const lower = msg.toLowerCase();
+  if (lower.match(/lonely|alone|no friends|nobody|isolat|push.*away|people.*leave/)) return 'lonely';
+  if (lower.match(/career|job|consult|mckinsey|bcg|bain|salary|interview|case/)) return 'career';
+  if (lower.match(/french|fran[cç]ais|language|parle|vocab/)) return 'french';
+  if (lower.match(/motivat|tired|lazy|give up|can't|hard|stuck|lost|purpose/)) return 'motivation';
+  if (lower.match(/confiden|boring|shy|awkward|social|talk|conversation/)) return 'confidence';
+  if (lower.match(/girl|wom[ae]n|dat|love|relationship|attract/)) return 'dating';
+  return 'default';
+}
+
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  checkBannedWords(msg);
+
+  const chat = document.getElementById('chatMessages');
+  chat.innerHTML += `<div class="chat-msg user"><div class="sender">RACHIT</div>${escapeHTML(msg)}</div>`;
+
+  const topic = detectTopic(msg);
+  const responses = kikouResponses[topic];
+  const response = responses[Math.floor(Math.random() * responses.length)];
+
+  setTimeout(() => {
+    chat.innerHTML += `<div class="chat-msg kikou"><div class="sender">KIKOU (Future You)</div>${response}</div>`;
+    chat.scrollTop = chat.scrollHeight;
+  }, 800);
+
+  input.value = '';
+  chat.scrollTop = chat.scrollHeight;
+  addXP(5);
+}
+
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ===========================
+// BANNED WORDS DETECTOR
+// ===========================
+
+const bannedPhrases = ["i don't know", "i cant", "i can't", "i'm not sure", "im not sure", "maybe later", "it's too hard", "its too hard", "i'm boring", "im boring"];
+const corrections = [
+  "KIKOU says: Delete that phrase! Say 'Let me figure it out' instead.",
+  "KIKOU says: Wrong vocabulary! Try 'I'll find a way' instead.",
+  "KIKOU says: That's OLD Rachit talking. NEW Rachit says 'Here's what I think...'",
+  "KIKOU says: Banned word detected! Future you doesn't talk like that."
+];
+
+function checkBannedWords(text) {
+  const lower = text.toLowerCase();
+  for (const phrase of bannedPhrases) {
+    if (lower.includes(phrase)) {
+      const alert = document.getElementById('bannedAlert');
+      alert.textContent = corrections[Math.floor(Math.random() * corrections.length)];
+      alert.style.display = 'block';
+      setTimeout(() => { alert.style.display = 'none'; }, 4000);
+      return true;
+    }
+  }
+  return false;
+}
+
+// ===========================
+// INIT
+// ===========================
+
+function initApp() {
+  // Set random affirmation
+  affIdx = Math.floor(Math.random() * affirmations.length);
+  document.getElementById('affirmationBanner').textContent = affirmations[affIdx];
+
+  renderMissions();
+  renderHabits();
+  renderGrowthAreas();
+  renderMorningRoutine();
+  renderFrench();
+  renderCareer();
+  renderSocial();
+  renderMindset();
+  renderJournal();
+}
+
+initApp();
+
+// ===========================
+// PWA - Service Worker & Install
+// ===========================
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('Kikou SW registered:', reg.scope))
+      .catch(err => console.log('SW registration failed:', err));
+  });
+}
+
+// PWA Install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const installBtn = document.getElementById('installBtn');
+  if (installBtn) installBtn.style.display = 'inline-block';
+});
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(choice => {
+      if (choice.outcome === 'accepted') {
+        console.log('Kikou installed!');
+        document.getElementById('installBtn').style.display = 'none';
+      }
+      deferredPrompt = null;
+    });
+  }
+}
+
+window.addEventListener('appinstalled', () => {
+  console.log('KIKOU installed successfully!');
+  deferredPrompt = null;
+});
+
+// Handle hash-based navigation for PWA shortcuts
+function handleHash() {
+  const hash = window.location.hash.replace('#', '');
+  if (hash && document.getElementById('page-' + hash)) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + hash).classList.add('active');
+    // Find and activate the right nav button
+    document.querySelectorAll('.nav-btn').forEach(b => {
+      if (b.textContent.toLowerCase().includes(hash)) b.classList.add('active');
+    });
+    // Auto-dismiss splash if navigating via shortcut
+    document.getElementById('splash').classList.add('hidden');
+    checkStreak();
+    updateStats();
+  }
+}
+window.addEventListener('hashchange', handleHash);
+if (window.location.hash) setTimeout(handleHash, 100);
+
+// Generate inline icons if not found (fallback for first use)
+function generateInlineIcon(size) {
+  const canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  // Background
+  const grad = ctx.createLinearGradient(0, 0, size, size);
+  grad.addColorStop(0, '#0a0a0f');
+  grad.addColorStop(0.5, '#1a1a2e');
+  grad.addColorStop(1, '#0a0a0f');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, size, size);
+  // Glow
+  const glow = ctx.createRadialGradient(size*0.35, size*0.4, 0, size*0.5, size*0.5, size*0.6);
+  glow.addColorStop(0, 'rgba(245, 158, 11, 0.2)');
+  glow.addColorStop(1, 'transparent');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, size, size);
+  // K letter
+  ctx.font = `900 ${size*0.55}px system-ui`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const tg = ctx.createLinearGradient(size*0.2, size*0.2, size*0.8, size*0.8);
+  tg.addColorStop(0, '#f59e0b');
+  tg.addColorStop(1, '#d97706');
+  ctx.fillStyle = tg;
+  ctx.fillText('K', size*0.5, size*0.48);
+  return canvas.toDataURL('image/png');
+}
+
+// Auto-generate icons on first load if needed
+async function ensureIcons() {
+  const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+  for (const size of sizes) {
+    try {
+      const resp = await fetch(`./icons/icon-${size}.png`, { method: 'HEAD' });
+      if (!resp.ok) throw new Error('not found');
+    } catch {
+      // Icon not found; we'll use inline fallback for manifest
+      // This is handled by the service worker caching
+    }
+  }
+}
+ensureIcons();
+</script>
+</body>
+</html>
