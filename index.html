@@ -354,6 +354,140 @@ body::before {
 
 .chat-send:hover { transform: scale(1.05); }
 
+/* Voice Assistant Styles */
+.mic-btn {
+  width: 48px; height: 48px;
+  border: none; border-radius: 50%;
+  background: rgba(139,92,246,0.15);
+  color: var(--accent2);
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.mic-btn:hover { background: rgba(139,92,246,0.25); transform: scale(1.05); }
+
+.mic-btn.listening {
+  background: rgba(239,68,68,0.2);
+  color: var(--danger);
+  animation: micPulse 1.2s ease-in-out infinite;
+}
+
+.mic-btn.listening::after {
+  content: '';
+  position: absolute;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--danger);
+  animation: micRing 1.5s ease-out infinite;
+}
+
+@keyframes micPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes micRing {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+.speak-btn {
+  background: none; border: none;
+  color: var(--accent2);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  opacity: 0.6;
+}
+
+.speak-btn:hover { opacity: 1; background: rgba(139,92,246,0.15); }
+.speak-btn.speaking { opacity: 1; color: var(--accent); animation: micPulse 1s infinite; }
+
+.voice-toggle {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px;
+  background: rgba(139,92,246,0.1);
+  border: 1px solid rgba(139,92,246,0.2);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 12px; font-weight: 600;
+  color: var(--accent2);
+}
+
+.voice-toggle:hover { background: rgba(139,92,246,0.2); }
+.voice-toggle.active { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.3); color: var(--accent3); }
+
+.voice-indicator {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: background 0.3s;
+}
+
+.voice-toggle.active .voice-indicator { background: var(--accent3); box-shadow: 0 0 8px rgba(16,185,129,0.5); }
+
+.french-listen-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px;
+  background: rgba(139,92,246,0.1);
+  border: 1px solid rgba(139,92,246,0.2);
+  border-radius: 8px;
+  color: var(--accent2);
+  font-size: 11px; font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 6px;
+}
+
+.french-listen-btn:hover { background: rgba(139,92,246,0.25); }
+
+/* Floating mic button for mobile */
+.floating-mic {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #d97706);
+  border: none;
+  color: #000;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 90;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px var(--accent-glow);
+  transition: all 0.3s;
+}
+
+.floating-mic:hover { transform: scale(1.1); }
+.floating-mic.listening {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  animation: micPulse 1.2s ease-in-out infinite;
+}
+
+.voice-status {
+  position: fixed;
+  bottom: 92px; right: 16px;
+  background: rgba(10,10,15,0.95);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: var(--text-dim);
+  z-index: 90;
+  display: none;
+  max-width: 200px;
+  backdrop-filter: blur(10px);
+}
+
+.voice-status.active { display: block; }
+
 /* French section */
 .french-word {
   background: rgba(139,92,246,0.1);
@@ -631,6 +765,9 @@ body::before {
 
     <div class="affirmation-banner" id="affirmationBanner" onclick="nextAffirmation()">
       Loading your daily fire...
+    </div>
+    <div style="text-align:center; margin-top:-16px; margin-bottom:16px;">
+      <button class="french-listen-btn" style="background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.3); color:var(--accent);" onclick="speakText(document.getElementById('affirmationBanner').textContent, 'en')">&#128266; Read Aloud</button>
     </div>
 
     <div class="grid-2">
@@ -1021,20 +1158,32 @@ body::before {
 
   <!-- ========== CHAT ========== -->
   <div class="page" id="page-chat">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <div style="font-size:13px; color:var(--text-dim);">Talk, type, or listen. Kikou is here.</div>
+      <div class="voice-toggle" id="voiceToggle" onclick="toggleVoiceMode()">
+        <div class="voice-indicator"></div>
+        <span id="voiceToggleLabel">Voice Off</span>
+      </div>
+    </div>
     <div class="chat-container">
       <div class="chat-messages" id="chatMessages">
         <div class="chat-msg kikou">
-          <div class="sender">KIKOU (Future You)</div>
-          Hey Rachit. I'm you, but the version that already made it. The version with the consulting job, the packed social calendar, the French flowing like water. Ask me anything. I'll give you the truth, the hype, and the plan. Let's build. What's on your mind?
+          <div class="sender">KIKOU (Future You) <button class="speak-btn" onclick="speakText(this.parentElement.nextSibling.textContent, 'en')" title="Listen">&#128266;</button></div>
+          <span>Hey Rachit. I'm you, but the version that already made it. The version with the consulting job, the packed social calendar, the French flowing like water. Ask me anything. I'll give you the truth, the hype, and the plan. Let's build. What's on your mind?</span>
         </div>
       </div>
       <div class="chat-input-area">
-        <input class="chat-input" id="chatInput" placeholder="Talk to your future self..." onkeydown="if(event.key==='Enter') sendChat()">
+        <button class="mic-btn" id="chatMicBtn" onclick="toggleChatMic()" title="Hold to speak">&#127908;</button>
+        <input class="chat-input" id="chatInput" placeholder="Talk to your future self... or tap the mic" onkeydown="if(event.key==='Enter') sendChat()">
         <button class="chat-send" onclick="sendChat()">SEND</button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Floating Mic Button (visible on all pages) -->
+<button class="floating-mic" id="floatingMic" onclick="toggleGlobalMic()" title="Talk to Kikou">&#127908;</button>
+<div class="voice-status" id="voiceStatus">&#127908; Listening...</div>
 
 <script>
 // ===========================
@@ -1390,16 +1539,16 @@ function renderFrench() {
   const words = frenchVocabSets[dayIdx];
   document.getElementById('frenchVocab').innerHTML = words.map(w => `
     <div class="french-word">
-      <div class="word">${w.word}</div>
+      <div class="word">${w.word} <button class="french-listen-btn" onclick="speakFrench('${w.word.replace(/'/g, "\\'")}')">&#128266; Listen</button></div>
       <div class="meaning">${w.meaning}</div>
-      <div class="example">${w.example}</div>
+      <div class="example">${w.example} <button class="french-listen-btn" onclick="speakFrench('${w.example.replace(/'/g, "\\'")}')">&#128266; Hear it</button></div>
     </div>
   `).join('');
 
   const shuffled = [...businessPhrases].sort(() => 0.5 - Math.random()).slice(0, 4);
   document.getElementById('businessFrench').innerHTML = shuffled.map(p => `
     <div class="french-word">
-      <div class="word" style="font-size: 16px;">${p.fr}</div>
+      <div class="word" style="font-size: 16px;">${p.fr} <button class="french-listen-btn" onclick="speakFrench('${p.fr.replace(/'/g, "\\'")}')">&#128266; Listen</button></div>
       <div class="meaning">${p.en}</div>
     </div>
   `).join('');
@@ -1410,9 +1559,9 @@ function renderMorningFrenchWord() {
   const word = frenchVocabSets[dayIdx][0];
   document.getElementById('morningFrenchWord').innerHTML = `
     <div class="french-word">
-      <div class="word">${word.word}</div>
+      <div class="word">${word.word} <button class="french-listen-btn" onclick="speakFrench('${word.word.replace(/'/g, "\\'")}')">&#128266; Listen</button></div>
       <div class="meaning">${word.meaning}</div>
-      <div class="example">${word.example}</div>
+      <div class="example">${word.example} <button class="french-listen-btn" onclick="speakFrench('${word.example.replace(/'/g, "\\'")}')">&#128266; Hear it</button></div>
     </div>
   `;
 }
@@ -1767,9 +1916,9 @@ function detectTopic(msg) {
   return 'default';
 }
 
-function sendChat() {
+function sendChat(text) {
   const input = document.getElementById('chatInput');
-  const msg = input.value.trim();
+  const msg = (text || input.value).trim();
   if (!msg) return;
 
   checkBannedWords(msg);
@@ -1782,8 +1931,13 @@ function sendChat() {
   const response = responses[Math.floor(Math.random() * responses.length)];
 
   setTimeout(() => {
-    chat.innerHTML += `<div class="chat-msg kikou"><div class="sender">KIKOU (Future You)</div>${response}</div>`;
+    chat.innerHTML += `<div class="chat-msg kikou"><div class="sender">KIKOU (Future You) <button class="speak-btn" onclick="speakText(this.closest('.chat-msg').querySelector('span').textContent, 'en')" title="Listen">&#128266;</button></div><span>${response}</span></div>`;
     chat.scrollTop = chat.scrollHeight;
+
+    // Auto-speak if voice mode is on
+    if (voiceMode) {
+      speakText(response, 'en');
+    }
   }, 800);
 
   input.value = '';
@@ -1949,6 +2103,255 @@ async function ensureIcons() {
   }
 }
 ensureIcons();
+
+// ===========================
+// VOICE ASSISTANT ENGINE
+// ===========================
+
+let voiceMode = false;
+let isListening = false;
+let recognition = null;
+let synthesis = window.speechSynthesis;
+
+// --- Speech Recognition Setup ---
+function initSpeechRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    console.warn('Speech Recognition not supported in this browser');
+    return null;
+  }
+  const rec = new SpeechRecognition();
+  rec.continuous = false;
+  rec.interimResults = true;
+  rec.lang = 'en-US';
+  rec.maxAlternatives = 1;
+
+  rec.onresult = (event) => {
+    let transcript = '';
+    let isFinal = false;
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+      if (event.results[i].isFinal) isFinal = true;
+    }
+    // Show live transcription in chat input
+    document.getElementById('chatInput').value = transcript;
+
+    if (isFinal) {
+      stopListening();
+      // Auto-navigate to chat page and send
+      if (!document.getElementById('page-chat').classList.contains('active')) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('page-chat').classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => {
+          b.classList.remove('active');
+          if (b.textContent.includes('Kikou')) b.classList.add('active');
+        });
+      }
+      sendChat(transcript);
+    }
+  };
+
+  rec.onerror = (event) => {
+    console.warn('Speech recognition error:', event.error);
+    stopListening();
+    if (event.error === 'not-allowed') {
+      showVoiceStatus('Microphone access denied. Check browser permissions.');
+    }
+  };
+
+  rec.onend = () => {
+    if (isListening) {
+      // Unexpected end, clean up
+      stopListening();
+    }
+  };
+
+  return rec;
+}
+
+function startListening() {
+  if (!recognition) recognition = initSpeechRecognition();
+  if (!recognition) {
+    showVoiceStatus('Voice not supported in this browser. Use Chrome.');
+    return;
+  }
+
+  try {
+    isListening = true;
+    recognition.start();
+
+    // Update all mic button states
+    document.getElementById('floatingMic').classList.add('listening');
+    document.getElementById('floatingMic').innerHTML = '&#9899;';
+    const chatMic = document.getElementById('chatMicBtn');
+    if (chatMic) chatMic.classList.add('listening');
+    showVoiceStatus('&#127908; Listening... speak now');
+  } catch (e) {
+    console.warn('Recognition start error:', e);
+    stopListening();
+  }
+}
+
+function stopListening() {
+  isListening = false;
+  if (recognition) {
+    try { recognition.stop(); } catch {}
+  }
+
+  // Reset all mic button states
+  document.getElementById('floatingMic').classList.remove('listening');
+  document.getElementById('floatingMic').innerHTML = '&#127908;';
+  const chatMic = document.getElementById('chatMicBtn');
+  if (chatMic) chatMic.classList.remove('listening');
+  hideVoiceStatus();
+}
+
+function toggleGlobalMic() {
+  if (isListening) {
+    stopListening();
+  } else {
+    startListening();
+  }
+}
+
+function toggleChatMic() {
+  toggleGlobalMic();
+}
+
+// --- Text-to-Speech ---
+function speakText(text, lang = 'en') {
+  if (!synthesis) return;
+
+  // Stop any current speech
+  synthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+
+  // Set language
+  if (lang === 'fr') {
+    utterance.lang = 'fr-FR';
+  } else {
+    utterance.lang = 'en-US';
+  }
+
+  // Find best voice
+  const voices = synthesis.getVoices();
+  if (lang === 'fr') {
+    const frVoice = voices.find(v => v.lang.startsWith('fr') && v.name.includes('Google'))
+      || voices.find(v => v.lang.startsWith('fr'));
+    if (frVoice) utterance.voice = frVoice;
+  } else {
+    const enVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Google') && v.name.includes('Male'))
+      || voices.find(v => v.lang.startsWith('en-US') && v.name.includes('Google'))
+      || voices.find(v => v.lang.startsWith('en'));
+    if (enVoice) utterance.voice = enVoice;
+  }
+
+  utterance.rate = 0.95;
+  utterance.pitch = 1.0;
+  utterance.volume = 1.0;
+
+  // Update button states
+  utterance.onstart = () => {
+    document.querySelectorAll('.speak-btn').forEach(b => b.classList.remove('speaking'));
+    // Try to find the button that triggered this
+    if (event && event.target) event.target.classList.add('speaking');
+  };
+  utterance.onend = () => {
+    document.querySelectorAll('.speak-btn').forEach(b => b.classList.remove('speaking'));
+  };
+
+  synthesis.speak(utterance);
+}
+
+// Speak French words/phrases
+function speakFrench(text) {
+  speakText(text, 'fr');
+}
+
+// --- Voice Mode Toggle ---
+function toggleVoiceMode() {
+  voiceMode = !voiceMode;
+  const toggle = document.getElementById('voiceToggle');
+  const label = document.getElementById('voiceToggleLabel');
+  if (voiceMode) {
+    toggle.classList.add('active');
+    label.textContent = 'Voice On';
+    showVoiceStatus('Voice mode ON. Kikou will speak responses.');
+    setTimeout(hideVoiceStatus, 2000);
+  } else {
+    toggle.classList.remove('active');
+    label.textContent = 'Voice Off';
+    synthesis.cancel();
+  }
+}
+
+// --- Voice Status Indicator ---
+function showVoiceStatus(text) {
+  const el = document.getElementById('voiceStatus');
+  el.innerHTML = text;
+  el.classList.add('active');
+}
+
+function hideVoiceStatus() {
+  document.getElementById('voiceStatus').classList.remove('active');
+}
+
+// --- Load voices (async on some browsers) ---
+if (synthesis) {
+  synthesis.getVoices();
+  synthesis.onvoiceschanged = () => synthesis.getVoices();
+}
+
+// --- Voice Commands (from global mic, non-chat pages) ---
+function handleVoiceCommand(transcript) {
+  const lower = transcript.toLowerCase();
+
+  // Navigation commands
+  if (lower.includes('morning') || lower.includes('routine')) {
+    showPage('morning');
+    if (voiceMode) speakText("Here's your morning routine, Rachit. Let's crush it.");
+    return true;
+  }
+  if (lower.includes('career') || lower.includes('job')) {
+    showPage('career');
+    if (voiceMode) speakText("Career command center. Time to prep for that consulting offer.");
+    return true;
+  }
+  if (lower.includes('french') || lower.includes('français')) {
+    showPage('french');
+    if (voiceMode) speakText("French mastery zone. Tu es prêt?", 'en');
+    return true;
+  }
+  if (lower.includes('social') || lower.includes('people')) {
+    showPage('social');
+    if (voiceMode) speakText("Social engine activated. Let's build your network.");
+    return true;
+  }
+  if (lower.includes('mindset') || lower.includes('confidence')) {
+    showPage('mindset');
+    if (voiceMode) speakText("Mindset reprogramming. Remember who you are, Kikou.");
+    return true;
+  }
+  if (lower.includes('journal') || lower.includes('diary')) {
+    showPage('journal');
+    if (voiceMode) speakText("Journal time. Document your rise.");
+    return true;
+  }
+  if (lower.includes('motivat') || lower.includes('hype') || lower.includes('fire')) {
+    nextAffirmation();
+    const aff = document.getElementById('affirmationBanner').textContent;
+    if (voiceMode) speakText(aff);
+    return true;
+  }
+
+  return false; // Not a command, treat as chat
+}
+
+// Override the global mic to handle commands OR chat
+const originalToggleGlobalMic = toggleGlobalMic;
 </script>
+</body>
+</html>
 </body>
 </html>
