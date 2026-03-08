@@ -488,6 +488,132 @@ body::before {
 
 .voice-status.active { display: block; }
 
+/* Voice Orb - Main Assistant UI */
+.voice-orb {
+  width: 160px; height: 160px;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.voice-orb-inner {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(139,92,246,0.15));
+  border: 2px solid rgba(245,158,11,0.3);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.4s ease;
+  z-index: 2;
+  position: relative;
+}
+
+.voice-orb:hover .voice-orb-inner {
+  transform: scale(1.05);
+  border-color: rgba(245,158,11,0.5);
+  box-shadow: 0 0 40px rgba(245,158,11,0.15);
+}
+
+.voice-orb-icon {
+  font-size: 40px;
+  transition: all 0.3s;
+}
+
+/* Listening state */
+.voice-orb.listening .voice-orb-inner {
+  background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(245,158,11,0.2));
+  border-color: rgba(239,68,68,0.5);
+  box-shadow: 0 0 50px rgba(239,68,68,0.2);
+  animation: orbPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes orbPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+/* Speaking state */
+.voice-orb.speaking .voice-orb-inner {
+  background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(139,92,246,0.2));
+  border-color: rgba(16,185,129,0.5);
+  box-shadow: 0 0 50px rgba(16,185,129,0.2);
+  animation: orbSpeak 0.8s ease-in-out infinite;
+}
+
+@keyframes orbSpeak {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.06); }
+  60% { transform: scale(0.97); }
+}
+
+/* Animated rings */
+.voice-orb-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(245,158,11,0.1);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ring1 { width: 130px; height: 130px; }
+.ring2 { width: 145px; height: 145px; }
+.ring3 { width: 160px; height: 160px; }
+
+.voice-orb.listening .ring1,
+.voice-orb.speaking .ring1 {
+  opacity: 1;
+  animation: ringExpand 2s ease-out infinite;
+}
+
+.voice-orb.listening .ring2,
+.voice-orb.speaking .ring2 {
+  opacity: 1;
+  animation: ringExpand 2s ease-out 0.4s infinite;
+}
+
+.voice-orb.listening .ring3,
+.voice-orb.speaking .ring3 {
+  opacity: 1;
+  animation: ringExpand 2s ease-out 0.8s infinite;
+}
+
+@keyframes ringExpand {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.6; border-color: rgba(245,158,11,0.3); }
+  100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; border-color: rgba(245,158,11,0); }
+}
+
+.voice-orb.listening .ring1, .voice-orb.listening .ring2, .voice-orb.listening .ring3 {
+  border-color: rgba(239,68,68,0.3);
+}
+
+.voice-orb.speaking .ring1, .voice-orb.speaking .ring2, .voice-orb.speaking .ring3 {
+  border-color: rgba(16,185,129,0.3);
+}
+
+/* Voice history items */
+.voice-history-item {
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.voice-history-item.user-msg {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  text-align: right;
+  color: var(--text-dim);
+}
+
+.voice-history-item.kikou-msg {
+  background: rgba(245,158,11,0.05);
+  border: 1px solid rgba(245,158,11,0.1);
+  color: var(--text);
+}
+
 /* French section */
 .french-word {
   background: rgba(139,92,246,0.1);
@@ -1156,28 +1282,78 @@ body::before {
     </div>
   </div>
 
-  <!-- ========== CHAT ========== -->
+  <!-- ========== TALK TO KIKOU (Voice Assistant) ========== -->
   <div class="page" id="page-chat">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <div style="font-size:13px; color:var(--text-dim);">Talk, type, or listen. Kikou is here.</div>
-      <div class="voice-toggle" id="voiceToggle" onclick="toggleVoiceMode()">
-        <div class="voice-indicator"></div>
-        <span id="voiceToggleLabel">Voice Off</span>
+
+    <!-- Voice Assistant Mode (default) -->
+    <div id="voiceAssistantView">
+      <div style="text-align:center; padding-top: 20px;">
+        <div style="font-size: 14px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">Your Future Self</div>
+        <div style="font-size: 42px; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px;">KIKOU</div>
+        <div style="font-size: 12px; color: var(--text-dim);">Tap the mic and talk. I'm listening.</div>
       </div>
-    </div>
-    <div class="chat-container">
-      <div class="chat-messages" id="chatMessages">
-        <div class="chat-msg kikou">
-          <div class="sender">KIKOU (Future You) <button class="speak-btn" onclick="speakText(this.parentElement.nextSibling.textContent, 'en')" title="Listen">&#128266;</button></div>
-          <span>Hey Rachit. I'm you, but the version that already made it. The version with the consulting job, the packed social calendar, the French flowing like water. Ask me anything. I'll give you the truth, the hype, and the plan. Let's build. What's on your mind?</span>
+
+      <!-- Voice Orb -->
+      <div style="display: flex; justify-content: center; align-items: center; padding: 40px 0;">
+        <div id="voiceOrb" class="voice-orb" onclick="toggleChatMic()">
+          <div class="voice-orb-inner" id="voiceOrbInner">
+            <span class="voice-orb-icon" id="voiceOrbIcon">&#127908;</span>
+          </div>
+          <div class="voice-orb-ring ring1"></div>
+          <div class="voice-orb-ring ring2"></div>
+          <div class="voice-orb-ring ring3"></div>
         </div>
       </div>
-      <div class="chat-input-area">
-        <button class="mic-btn" id="chatMicBtn" onclick="toggleChatMic()" title="Hold to speak">&#127908;</button>
-        <input class="chat-input" id="chatInput" placeholder="Talk to your future self... or tap the mic" onkeydown="if(event.key==='Enter') sendChat()">
-        <button class="chat-send" onclick="sendChat()">SEND</button>
+
+      <!-- Voice Status Text -->
+      <div style="text-align: center; min-height: 60px;">
+        <div id="voiceAssistantStatus" style="font-size: 14px; color: var(--text-dim); font-weight: 600;">Tap to speak</div>
+        <div id="voiceLiveText" style="font-size: 16px; color: var(--text-bright); font-weight: 700; margin-top: 8px; min-height: 24px;"></div>
+      </div>
+
+      <!-- Kikou Response Area -->
+      <div id="kikouResponseArea" class="card" style="margin-top: 20px; display: none;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; color: #000;">K</div>
+          <div style="font-weight: 800; font-size: 14px; color: var(--accent);">KIKOU</div>
+          <button class="speak-btn" id="replayBtn" onclick="replayLastResponse()" title="Replay" style="margin-left: auto;">&#128266; Replay</button>
+        </div>
+        <div id="kikouResponseText" style="font-size: 15px; line-height: 1.7; color: var(--text-bright);"></div>
+      </div>
+
+      <!-- Conversation History (collapsed) -->
+      <div id="voiceHistory" style="margin-top: 16px;"></div>
+
+      <!-- Switch to text chat -->
+      <div style="text-align: center; margin-top: 20px;">
+        <button class="btn btn-ghost" onclick="switchToTextChat()" style="font-size: 12px;">&#9998; Switch to text chat</button>
       </div>
     </div>
+
+    <!-- Text Chat Mode (hidden by default) -->
+    <div id="textChatView" style="display: none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <button class="btn btn-ghost" onclick="switchToVoiceAssistant()" style="font-size: 12px;">&#127908; Switch to voice</button>
+        <div class="voice-toggle" id="voiceToggle" onclick="toggleVoiceMode()">
+          <div class="voice-indicator"></div>
+          <span id="voiceToggleLabel">Voice Off</span>
+        </div>
+      </div>
+      <div class="chat-container">
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-msg kikou">
+            <div class="sender">KIKOU (Future You) <button class="speak-btn" onclick="speakText(this.parentElement.nextSibling.textContent, 'en')" title="Listen">&#128266;</button></div>
+            <span>Hey Rachit. I'm you, but the version that already made it. Ask me anything. I'll give you the truth, the hype, and the plan.</span>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <button class="mic-btn" id="chatMicBtn" onclick="toggleChatMic()" title="Tap to speak">&#127908;</button>
+          <input class="chat-input" id="chatInput" placeholder="Type or tap the mic..." onkeydown="if(event.key==='Enter') sendChat()">
+          <button class="chat-send" onclick="sendChat()">SEND</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -2133,21 +2309,36 @@ function initSpeechRecognition() {
       transcript += event.results[i][0].transcript;
       if (event.results[i].isFinal) isFinal = true;
     }
-    // Show live transcription in chat input
-    document.getElementById('chatInput').value = transcript;
+
+    // Show live transcription
+    const liveText = document.getElementById('voiceLiveText');
+    if (liveText) liveText.textContent = transcript;
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) chatInput.value = transcript;
 
     if (isFinal) {
       stopListening();
-      // Auto-navigate to chat page and send
-      if (!document.getElementById('page-chat').classList.contains('active')) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById('page-chat').classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(b => {
-          b.classList.remove('active');
-          if (b.textContent.includes('Kikou')) b.classList.add('active');
-        });
+      checkBannedWords(transcript);
+
+      // Check if voice assistant view is active
+      const voiceView = document.getElementById('voiceAssistantView');
+      const isVoiceMode = voiceView && voiceView.style.display !== 'none';
+
+      if (isVoiceMode) {
+        // Voice assistant mode: show response in orb UI + speak it
+        const topic = detectTopic(transcript);
+        const responses = kikouResponses[topic];
+        const response = responses[Math.floor(Math.random() * responses.length)];
+
+        setTimeout(() => {
+          showKikouVoiceResponse(transcript, response);
+        }, 500);
+
+        addXP(10);
+      } else {
+        // Text chat mode
+        sendChat(transcript);
       }
-      sendChat(transcript);
     }
   };
 
@@ -2169,10 +2360,14 @@ function initSpeechRecognition() {
   return rec;
 }
 
+let lastKikouResponse = '';
+let voiceConversationHistory = [];
+
 function startListening() {
   if (!recognition) recognition = initSpeechRecognition();
   if (!recognition) {
     showVoiceStatus('Voice not supported in this browser. Use Chrome.');
+    updateVoiceAssistantStatus('Voice not supported. Use Chrome browser.');
     return;
   }
 
@@ -2180,12 +2375,24 @@ function startListening() {
     isListening = true;
     recognition.start();
 
+    // Update orb state
+    const orb = document.getElementById('voiceOrb');
+    if (orb) {
+      orb.classList.add('listening');
+      orb.classList.remove('speaking');
+    }
+    const orbIcon = document.getElementById('voiceOrbIcon');
+    if (orbIcon) orbIcon.innerHTML = '&#9899;';
+
     // Update all mic button states
     document.getElementById('floatingMic').classList.add('listening');
     document.getElementById('floatingMic').innerHTML = '&#9899;';
     const chatMic = document.getElementById('chatMicBtn');
     if (chatMic) chatMic.classList.add('listening');
-    showVoiceStatus('&#127908; Listening... speak now');
+
+    updateVoiceAssistantStatus('Listening... speak now');
+    document.getElementById('voiceLiveText').textContent = '';
+    showVoiceStatus('&#127908; Listening...');
   } catch (e) {
     console.warn('Recognition start error:', e);
     stopListening();
@@ -2198,11 +2405,19 @@ function stopListening() {
     try { recognition.stop(); } catch {}
   }
 
+  // Reset orb state
+  const orb = document.getElementById('voiceOrb');
+  if (orb) orb.classList.remove('listening');
+  const orbIcon = document.getElementById('voiceOrbIcon');
+  if (orbIcon) orbIcon.innerHTML = '&#127908;';
+
   // Reset all mic button states
   document.getElementById('floatingMic').classList.remove('listening');
   document.getElementById('floatingMic').innerHTML = '&#127908;';
   const chatMic = document.getElementById('chatMicBtn');
   if (chatMic) chatMic.classList.remove('listening');
+
+  updateVoiceAssistantStatus('Tap to speak');
   hideVoiceStatus();
 }
 
@@ -2210,12 +2425,96 @@ function toggleGlobalMic() {
   if (isListening) {
     stopListening();
   } else {
+    // If not on chat page, navigate there
+    if (!document.getElementById('page-chat').classList.contains('active')) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-chat').classList.add('active');
+      document.querySelectorAll('.nav-btn').forEach(b => {
+        b.classList.remove('active');
+        if (b.textContent.includes('Kikou')) b.classList.add('active');
+      });
+    }
     startListening();
   }
 }
 
 function toggleChatMic() {
-  toggleGlobalMic();
+  if (isListening) {
+    stopListening();
+  } else {
+    startListening();
+  }
+}
+
+function updateVoiceAssistantStatus(text) {
+  const el = document.getElementById('voiceAssistantStatus');
+  if (el) el.textContent = text;
+}
+
+function switchToTextChat() {
+  document.getElementById('voiceAssistantView').style.display = 'none';
+  document.getElementById('textChatView').style.display = 'block';
+}
+
+function switchToVoiceAssistant() {
+  document.getElementById('voiceAssistantView').style.display = 'block';
+  document.getElementById('textChatView').style.display = 'none';
+}
+
+function replayLastResponse() {
+  if (lastKikouResponse) speakText(lastKikouResponse, 'en');
+}
+
+function showKikouVoiceResponse(userMsg, response) {
+  lastKikouResponse = response;
+
+  // Show response in the voice assistant UI
+  const responseArea = document.getElementById('kikouResponseArea');
+  const responseText = document.getElementById('kikouResponseText');
+  if (responseArea && responseText) {
+    responseArea.style.display = 'block';
+    responseText.textContent = response;
+    responseArea.style.animation = 'none';
+    responseArea.offsetHeight; // trigger reflow
+    responseArea.style.animation = 'fadeIn 0.4s ease';
+  }
+
+  // Add to conversation history
+  voiceConversationHistory.push({ role: 'user', text: userMsg });
+  voiceConversationHistory.push({ role: 'kikou', text: response });
+  renderVoiceHistory();
+
+  // Set orb to speaking state
+  const orb = document.getElementById('voiceOrb');
+  if (orb) {
+    orb.classList.add('speaking');
+    orb.classList.remove('listening');
+  }
+  const orbIcon = document.getElementById('voiceOrbIcon');
+  if (orbIcon) orbIcon.innerHTML = '&#128266;';
+  updateVoiceAssistantStatus('Kikou is speaking...');
+
+  // Speak the response
+  speakText(response, 'en');
+
+  // Reset orb after speech ends (estimate duration)
+  const wordCount = response.split(' ').length;
+  const duration = Math.max(3000, wordCount * 280);
+  setTimeout(() => {
+    if (orb) orb.classList.remove('speaking');
+    if (orbIcon) orbIcon.innerHTML = '&#127908;';
+    updateVoiceAssistantStatus('Tap to speak again');
+  }, duration);
+}
+
+function renderVoiceHistory() {
+  const el = document.getElementById('voiceHistory');
+  if (!el) return;
+  // Show last 6 messages
+  const recent = voiceConversationHistory.slice(-6);
+  el.innerHTML = recent.map(m =>
+    `<div class="voice-history-item ${m.role === 'user' ? 'user-msg' : 'kikou-msg'}">${m.role === 'user' ? '&#128100; ' : '&#9889; '} ${m.text.length > 120 ? m.text.substring(0, 120) + '...' : m.text}</div>`
+  ).join('');
 }
 
 // --- Text-to-Speech ---
