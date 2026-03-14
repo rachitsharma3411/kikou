@@ -264,11 +264,11 @@ def run_pipeline() -> int:
     try:
         logger.info("Step 6: Aggregating portfolio-level risk...")
         portfolio_metrics = aggregate_portfolio(positions)
-        logger.info("  Total MtM:        $%,.0f", portfolio_metrics["total_MtM"])
-        logger.info("  Daily P&L:        $%,.0f", portfolio_metrics["daily_PnL"])
-        logger.info("  Net $ Delta:      $%,.0f", portfolio_metrics["net_dollar_delta"])
-        logger.info("  Net $ Vega:       $%,.0f", portfolio_metrics["net_dollar_vega"])
-        logger.info("  Net $ Theta:      $%,.0f", portfolio_metrics["net_dollar_theta"])
+        logger.info("  Total MtM:        $%s", f"{portfolio_metrics['total_MtM']:,.0f}")
+        logger.info("  Daily P&L:        $%s", f"{portfolio_metrics['daily_PnL']:,.0f}")
+        logger.info("  Net $ Delta:      $%s", f"{portfolio_metrics['net_dollar_delta']:,.0f}")
+        logger.info("  Net $ Vega:       $%s", f"{portfolio_metrics['net_dollar_vega']:,.0f}")
+        logger.info("  Net $ Theta:      $%s", f"{portfolio_metrics['net_dollar_theta']:,.0f}")
     except Exception:
         logger.critical("Portfolio aggregation failed:\n%s", traceback.format_exc())
         return 1
