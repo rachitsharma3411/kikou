@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Derivatives Risk Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --border:    #21262d;
+      --accent:    #1f6feb;
+      --accent2:   #388bfd;
+      --green:     #3fb950;
+      --red:       #f85149;
+      --amber:     #d29922;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --card-h:    140px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; min-height: 100vh; }
+
+    /* ── Header ── */
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    header h1 { font-size: 1.1rem; font-weight: 600; letter-spacing: .3px; }
+    header h1 span { color: var(--accent2); }
+    .header-meta { display: flex; align-items: center; gap: 16px; }
+    .badge { font-size: .7rem; padding: 3px 10px; border-radius: 20px; font-weight: 600; letter-spacing: .5px; }
+    .badge-live { background: rgba(63,185,80,.15); color: var(--green); border: 1px solid rgba(63,185,80,.3); }
+    .badge-breach { background: rgba(248,81,73,.15); color: var(--red); border: 1px solid rgba(248,81,73,.3); }
+    .badge-ok    { background: rgba(31,111,235,.15); color: var(--accent2); border: 1px solid rgba(31,111,235,.3); }
+    #last-updated { font-size: .75rem; color: var(--muted); }
+
+    /* ── Layout ── */
+    main { max-width: 1400px; margin: 0 auto; padding: 28px 24px 60px; }
+    section { margin-bottom: 32px; }
+    .section-title { font-size: .7rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+    /* ── Cards grid ── */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; position: relative; overflow: hidden; transition: border-color .2s; }
+    .card:hover { border-color: var(--accent); }
+    .card::before { content: ''; position: absolute; inset: 0; opacity: .04; background: linear-gradient(135deg, var(--accent2), transparent); pointer-events: none; }
+    .card-label { font-size: .7rem; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    .card-value { font-size: 1.65rem; font-weight: 700; letter-spacing: -.5px; line-height: 1; }
+    .card-sub   { font-size: .75rem; color: var(--muted); margin-top: 8px; }
+    .pos  { color: var(--green); }
+    .neg  { color: var(--red); }
+    .neu  { color: var(--text); }
+    .card-icon { position: absolute; top: 16px; right: 16px; font-size: 1.4rem; opacity: .25; }
+
+    /* ── Charts row ── */
+    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 860px) { .charts-row { grid-template-columns: 1fr; } }
+    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+    .chart-title { font-size: .8rem; font-weight: 600; color: var(--muted); margin-bottom: 16px; }
+    .chart-wrap { position: relative; height: 220px; }
+
+    /* ── Greeks bar section ── */
+    .greeks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .greek-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .greek-name { font-size: .7rem; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .greek-val  { font-size: 1.25rem; font-weight: 700; }
+    .greek-limit-bar { height: 4px; border-radius: 2px; background: var(--border); margin-top: 10px; overflow: hidden; }
+    .greek-limit-fill { height: 100%; border-radius: 2px; transition: width .8s ease; }
+    .fill-ok     { background: var(--green); }
+    .fill-warn   { background: var(--amber); }
+    .fill-breach { background: var(--red); }
+    .greek-limit-label { font-size: .65rem; color: var(--muted); margin-top: 4px; display: flex; justify-content: space-between; }
+
+    /* ── Positions table ── */
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    thead tr { background: #1c2128; }
+    th { padding: 11px 14px; text-align: left; font-size: .68rem; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+    tbody tr { border-top: 1px solid var(--border); transition: background .15s; }
+    tbody tr:hover { background: rgba(255,255,255,.03); }
+    td { padding: 11px 14px; white-space: nowrap; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: .68rem; font-weight: 700; }
+    .pill-call { background: rgba(63,185,80,.15); color: var(--green); }
+    .pill-put  { background: rgba(248,81,73,.15); color: var(--red); }
+
+    /* ── Alerts ── */
+    .alerts-list { display: flex; flex-direction: column; gap: 8px; }
+    .alert-item { background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.25); border-radius: 8px; padding: 12px 16px; font-size: .82rem; display: flex; align-items: center; gap: 10px; }
+    .alert-item::before { content: '⚠'; font-size: 1rem; }
+    .no-alerts { background: rgba(63,185,80,.08); border: 1px solid rgba(63,185,80,.25); border-radius: 8px; padding: 12px 16px; font-size: .82rem; color: var(--green); }
+
+    /* ── Market context ── */
+    .market-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+    .market-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+    .market-ticker { font-size: .8rem; font-weight: 700; }
+    .market-pct { font-size: .9rem; font-weight: 700; }
+
+    /* ── Footer ── */
+    footer { text-align: center; color: var(--muted); font-size: .72rem; padding: 20px; border-top: 1px solid var(--border); }
+
+    /* ── Loader ── */
+    #loader { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 999; }
+    .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent2); border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loader p { color: var(--muted); font-size: .85rem; }
+  </style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="spinner"></div>
+  <p>Loading risk data…</p>
+</div>
+
+<header>
+  <h1>Derivatives <span>Risk Dashboard</span></h1>
+  <div class="header-meta">
+    <span class="badge badge-live">LIVE</span>
+    <span id="report-date" style="font-size:.8rem;color:var(--muted)"></span>
+    <span id="last-updated"></span>
+  </div>
+</header>
+
+<main>
+
+  <!-- Summary cards -->
+  <section>
+    <div class="section-title">Portfolio Summary</div>
+    <div class="cards" id="cards-summary"></div>
+  </section>
+
+  <!-- Greeks -->
+  <section>
+    <div class="section-title">Greek Exposures vs Limits</div>
+    <div class="greeks-grid" id="greeks-grid"></div>
+  </section>
+
+  <!-- Charts -->
+  <section>
+    <div class="section-title">Historical Trend</div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Portfolio MtM — 30 Days</div>
+        <div class="chart-wrap"><canvas id="chart-mtm"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">P&amp;L Attribution</div>
+        <div class="chart-wrap"><canvas id="chart-pnl"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Positions table -->
+  <section>
+    <div class="section-title">Open Positions</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Ticker</th><th>Type</th><th>Strike</th><th>Expiry</th>
+            <th>Qty</th><th>Entry</th><th>Spot</th><th>Current $</th>
+            <th>MtM</th><th>Unreal. P&amp;L</th><th>$ Delta</th><th>$ Vega</th><th>IV</th>
+          </tr>
+        </thead>
+        <tbody id="positions-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Market context -->
+  <section>
+    <div class="section-title">Market Context — Daily Moves</div>
+    <div class="market-grid" id="market-grid"></div>
+  </section>
+
+  <!-- Alerts -->
+  <section>
+    <div class="section-title">Risk Alerts</div>
+    <div id="alerts-box"></div>
+  </section>
+
+</main>
+
+<footer>
+  Derivatives Risk Dashboard &nbsp;·&nbsp; Powered by Black-Scholes &amp; Claude AI &nbsp;·&nbsp;
+  <a href="https://github.com/rachitsharma3411/kikou" style="color:var(--accent2);text-decoration:none;">rachitsharma3411/kikou</a>
+</footer>
+
+<script>
+// ── Helpers ────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const fmt = (v, d=0) => {
+  if (v == null) return '—';
+  const s = v < 0 ? '-' : '';
+  return s + '$' + Math.abs(v).toLocaleString('en-US', {minimumFractionDigits:d, maximumFractionDigits:d});
+};
+const fmtPct = v => (v >= 0 ? '+' : '') + (v*100).toFixed(2) + '%';
+const color = v => v >= 0 ? 'var(--green)' : 'var(--red)';
+const cls   = v => v >= 0 ? 'pos' : 'neg';
+
+// ── Chart defaults ──────────────────────────────────────────────────────────
+Chart.defaults.color = '#8b949e';
+Chart.defaults.borderColor = '#21262d';
+Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
+// ── Main render ─────────────────────────────────────────────────────────────
+async function init() {
+  let data;
+  try {
+    const res = await fetch('data.json?t=' + Date.now());
+    if (!res.ok) throw new Error(res.status);
+    data = await res.json();
+  } catch(e) {
+    $('loader').innerHTML = `<p style="color:var(--red)">Failed to load data.json: ${e.message}</p>`;
+    return;
+  }
+
+  $('loader').style.display = 'none';
+
+  const cur  = data.portfolio_metrics?.current  || {};
+  const prior = data.portfolio_metrics?.prior   || {};
+  const attr  = data.portfolio_metrics?.PnL_attribution || {};
+  const positions = data.positions || [];
+  const market = data.market_context || {};
+  const alerts = data.alerts || [];
+  const spots  = data.spot_prices || {};
+  const limits = data.limits || { delta_limit: 100000, vega_limit: 200000 };
+  const history = data.history || [];
+
+  // ── Header ────────────────────────────────────────────────────────────────
+  $('report-date').textContent = data.report_date || '';
+  $('last-updated').textContent = data.generated_at
+    ? 'Updated ' + new Date(data.generated_at).toLocaleString()
+    : '';
+
+  // ── Summary cards ─────────────────────────────────────────────────────────
+  const cards = [
+    { label:'Total MtM',    value: fmt(cur.total_MtM),     sub: 'Mark-to-Market',      icon:'💼', cls: cls(cur.total_MtM) },
+    { label:'Daily P&L',    value: fmt(cur.daily_PnL),     sub: fmtPct(cur.daily_PnL / (Math.abs(cur.total_MtM)||1)), icon:'📈', cls: cls(cur.daily_PnL) },
+    { label:'Net $ Delta',  value: fmt(cur.net_dollar_delta), sub: 'vs prior: ' + fmt(prior.net_dollar_delta), icon:'Δ', cls:'neu' },
+    { label:'Net $ Vega',   value: fmt(cur.net_dollar_vega),  sub: 'vs prior: ' + fmt(prior.net_dollar_vega),  icon:'V', cls:'neu' },
+    { label:'Net $ Theta',  value: fmt(cur.net_dollar_theta), sub: 'daily decay',       icon:'Θ', cls: cls(cur.net_dollar_theta) },
+    { label:'Positions',    value: positions.length,        sub: 'open contracts',      icon:'📋', cls:'neu' },
+  ];
+  $('cards-summary').innerHTML = cards.map(c => `
+    <div class="card">
+      <div class="card-label">${c.label}</div>
+      <div class="card-value ${c.cls}">${c.value}</div>
+      <div class="card-sub">${c.sub}</div>
+      <div class="card-icon">${c.icon}</div>
+    </div>`).join('');
+
+  // ── Greeks with limit bars ─────────────────────────────────────────────────
+  const greeks = [
+    { name:'Net $ Delta', val: cur.net_dollar_delta, limit: limits.delta_limit },
+    { name:'Net $ Vega',  val: cur.net_dollar_vega,  limit: limits.vega_limit  },
+    { name:'Net $ Gamma', val: cur.net_dollar_gamma, limit: null },
+    { name:'Net $ Theta', val: cur.net_dollar_theta, limit: null },
+  ];
+  $('greeks-grid').innerHTML = greeks.map(g => {
+    const pct   = g.limit ? Math.min(Math.abs(g.val || 0) / g.limit * 100, 100) : 0;
+    const breach = g.limit && Math.abs(g.val||0) > g.limit;
+    const warn   = !breach && pct > 70;
+    const fillCls = breach ? 'fill-breach' : warn ? 'fill-warn' : 'fill-ok';
+    const valCls  = breach ? 'neg' : (g.val||0) < 0 ? 'neg' : 'neu';
+    return `
+    <div class="greek-card">
+      <div class="greek-name">${g.name}</div>
+      <div class="greek-val ${valCls}">${fmt(g.val)}</div>
+      ${g.limit ? `
+        <div class="greek-limit-bar">
+          <div class="greek-limit-fill ${fillCls}" style="width:${pct}%"></div>
+        </div>
+        <div class="greek-limit-label">
+          <span>${breach ? '⚠ BREACH' : 'OK'}</span>
+          <span>Limit ${fmt(g.limit)}</span>
+        </div>` : `<div class="greek-limit-label"><span>No limit set</span></div>`}
+    </div>`;
+  }).join('');
+
+  // ── Charts ────────────────────────────────────────────────────────────────
+  // MtM history
+  const labels = history.map(h => h.date.slice(5)); // MM-DD
+  const mtmData = history.map(h => h.total_MtM);
+  new Chart($('chart-mtm'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Total MtM ($)',
+        data: mtmData,
+        borderColor: '#388bfd',
+        backgroundColor: 'rgba(56,139,253,.1)',
+        borderWidth: 2,
+        pointRadius: 3,
+        fill: true,
+        tension: 0.3,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: '#21262d' } },
+        y: { grid: { color: '#21262d' }, ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' } }
+      }
+    }
+  });
+
+  // P&L attribution donut
+  new Chart($('chart-pnl'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Delta P&L', 'Vega P&L', 'Theta P&L'],
+      datasets: [{
+        data: [
+          Math.abs(attr.delta_pnl || 0),
+          Math.abs(attr.vega_pnl  || 0),
+          Math.abs(attr.theta_pnl || 0),
+        ],
+        backgroundColor: ['#388bfd', '#3fb950', '#f85149'],
+        borderColor: '#161b22',
+        borderWidth: 2,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { padding: 16, font: { size: 11 } } },
+        tooltip: { callbacks: { label: ctx => ' ' + fmt(ctx.raw) } }
+      },
+      cutout: '65%',
+    }
+  });
+
+  // ── Positions table ────────────────────────────────────────────────────────
+  const sorted = [...positions].sort((a,b) => Math.abs(b.dollar_vega||0) - Math.abs(a.dollar_vega||0));
+  $('positions-body').innerHTML = sorted.map(p => {
+    const pnlCls = (p.unrealized_PnL||0) >= 0 ? 'pos' : 'neg';
+    return `
+    <tr>
+      <td><strong>${p.ticker}</strong></td>
+      <td><span class="pill pill-${p.option_type}">${p.option_type.toUpperCase()}</span></td>
+      <td>$${p.strike}</td>
+      <td>${p.expiry}</td>
+      <td style="color:${p.quantity<0?'var(--red)':'var(--green)'}">
+        ${p.quantity > 0 ? '+' : ''}${p.quantity}
+      </td>
+      <td>$${(p.entry_price||0).toFixed(2)}</td>
+      <td>$${(spots[p.ticker]||0).toFixed(2)}</td>
+      <td>$${(p.current_price||0).toFixed(2)}</td>
+      <td>${fmt(p.MtM)}</td>
+      <td class="${pnlCls}">${fmt(p.unrealized_PnL)}</td>
+      <td>${fmt(p.dollar_delta)}</td>
+      <td>${fmt(p.dollar_vega)}</td>
+      <td>${((p.sigma||0)*100).toFixed(1)}%</td>
+    </tr>`;
+  }).join('');
+
+  // ── Market context ─────────────────────────────────────────────────────────
+  $('market-grid').innerHTML = Object.entries(market).map(([t, v]) => {
+    const isVix = t === 'VIX';
+    const display = isVix ? v.toFixed(2) : fmtPct(v);
+    const c = isVix ? 'var(--amber)' : color(v);
+    return `
+    <div class="market-card">
+      <span class="market-ticker">${t}</span>
+      <span class="market-pct" style="color:${c}">${display}</span>
+    </div>`;
+  }).join('');
+
+  // ── Alerts ────────────────────────────────────────────────────────────────
+  $('alerts-box').innerHTML = alerts.length
+    ? `<div class="alerts-list">${alerts.map(a => `<div class="alert-item">${a}</div>`).join('')}</div>`
+    : `<div class="no-alerts">✓ No risk alerts — all limits within bounds</div>`;
+}
+
+init();
+
+// Auto-refresh every 30 minutes
+setInterval(() => location.reload(), 30 * 60 * 1000);
+</script>
+</body>
+</html>

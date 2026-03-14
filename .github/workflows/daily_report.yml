@@ -1,0 +1,45 @@
+name: Daily Derivatives Risk Report
+
+on:
+  schedule:
+    # Run Mon-Fri at 21:30 UTC (4:30 PM ET, after US market close)
+    - cron: '30 21 * * 1-5'
+  workflow_dispatch:   # allow manual trigger from GitHub UI
+
+permissions:
+  contents: write
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: "Repository 6 (Derivatives)"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate risk data & dashboard JSON
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python export_data.py
+
+      - name: Commit and push updated data.json
+        run: |
+          cd ..
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data.json "Repository 6 (Derivatives)/snapshots.db" || true
+          git diff --cached --quiet && echo "No changes to commit" || \
+            git commit -m "chore: update risk dashboard data $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push
