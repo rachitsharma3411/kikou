@@ -488,6 +488,39 @@ body::before {
 
 .voice-status.active { display: block; }
 
+/* Toggle switch */
+.toggle-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.1); border-radius: 28px; transition: 0.3s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute; height: 22px; width: 22px; left: 3px; bottom: 3px;
+  background: white; border-radius: 50%; transition: 0.3s;
+}
+.toggle-switch input:checked + .toggle-slider { background: var(--accent3); }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+/* Module toggle row */
+.module-toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+}
+.module-toggle-row:last-child { border-bottom: none; }
+.module-toggle-name { font-weight: 600; font-size: 14px; }
+.module-toggle-desc { font-size: 11px; color: var(--text-dim); }
+
+/* AI thinking indicator */
+.ai-thinking {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--accent);
+}
+.ai-thinking .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: aiDot 1.2s infinite; }
+.ai-thinking .dot:nth-child(2) { animation-delay: 0.2s; }
+.ai-thinking .dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes aiDot { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
 /* Voice Orb - Main Assistant UI */
 .voice-orb {
   width: 160px; height: 160px;
@@ -881,6 +914,7 @@ body::before {
   <button class="nav-btn" onclick="showPage('mindset')">Mindset</button>
   <button class="nav-btn" onclick="showPage('journal')">Journal</button>
   <button class="nav-btn" onclick="showPage('chat')">Talk to Kikou</button>
+  <button class="nav-btn" onclick="showPage('settings')">Settings</button>
 </div>
 
 <!-- Main Content -->
@@ -1354,6 +1388,83 @@ body::before {
       </div>
     </div>
 
+  </div>
+
+  <!-- ========== SETTINGS ========== -->
+  <div class="page" id="page-settings">
+    <div class="quote-box">
+      <div class="quote-text">Make Kikou yours. Toggle what matters, hide what doesn't.</div>
+      <div class="quote-sub">SETTINGS & CUSTOMIZATION</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#129504;</span> AI Brain (Connect LLM)</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">Connect a free AI so Kikou gives real, intelligent answers to YOUR questions — like ChatGPT but as your future self.</p>
+      <div class="input-group">
+        <div class="input-label">AI Provider</div>
+        <select class="input-field" id="settingsProvider" onchange="saveSettings()">
+          <option value="groq">Groq (FREE - Recommended)</option>
+          <option value="openai">OpenAI (ChatGPT)</option>
+          <option value="offline">Offline (Built-in responses only)</option>
+        </select>
+      </div>
+      <div class="input-group" id="apiKeyGroup">
+        <div class="input-label">API Key</div>
+        <input class="input-field" id="settingsApiKey" type="password" placeholder="Paste your API key here" oninput="saveSettings()">
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: 6px;" id="apiKeyHelp">
+          Get a FREE Groq key: go to <strong>console.groq.com</strong> → sign up → API Keys → Create. It's 100% free.
+        </div>
+      </div>
+      <div id="aiStatus" style="margin-top: 8px;"></div>
+      <button class="btn btn-secondary" style="margin-top: 8px;" onclick="testAIConnection()">Test Connection</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#9881;&#65039;</span> Modules (Show / Hide)</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">Toggle the modules you want. Hidden modules disappear from the navigation.</p>
+      <div id="moduleToggles"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128276;</span> Morning Notifications</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">Get a mindset quote notification every morning when you open your phone.</p>
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0;">
+        <span style="font-weight: 600; font-size: 14px;">Enable morning notifications</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingsNotifications" onchange="toggleNotifications()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div id="notifStatus" style="font-size: 12px; color: var(--text-dim); margin-top: 4px;"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128241;</span> Home Screen Widget</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">Add a journal shortcut widget to your Android home screen.</p>
+      <div style="padding: 14px; background: rgba(245,158,11,0.05); border-radius: 10px; border-left: 3px solid var(--accent); font-size: 13px; line-height: 1.6;">
+        <strong>How to add the widget:</strong><br>
+        1. Install KIKOU as an app (Add to Home Screen)<br>
+        2. Long-press your home screen → Widgets<br>
+        3. Find "KIKOU" → drag the widget to your home screen<br>
+        4. The widget shows today's intention and quick journal access
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128465;&#65039;</span> Data</div>
+      <button class="btn btn-ghost" onclick="if(confirm('Reset ALL data? This cannot be undone.')) { localStorage.clear(); location.reload(); }" style="color: var(--danger);">Reset All Data</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Morning Notification Popup -->
+<div id="morningPopup" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); z-index:500; display:none; align-items:center; justify-content:center; padding:24px; backdrop-filter:blur(10px);">
+  <div style="max-width:400px; width:100%; text-align:center; animation: fadeIn 0.6s ease;">
+    <div style="font-size:14px; color:var(--accent); letter-spacing:3px; text-transform:uppercase; margin-bottom:8px;">Good Morning, Rachit</div>
+    <div id="morningPopupQuote" style="font-size:22px; font-weight:800; color:var(--text-bright); line-height:1.5; margin:20px 0;"></div>
+    <div style="font-size:13px; color:var(--text-dim); margin-bottom:28px;">- KIKOU, your future self</div>
+    <button onclick="closeMorningPopup()" style="padding:14px 40px; background:linear-gradient(135deg, var(--accent), #d97706); border:none; border-radius:14px; color:#000; font-size:16px; font-weight:800; cursor:pointer; letter-spacing:1px;">LET'S GO</button>
   </div>
 </div>
 
@@ -2092,7 +2203,44 @@ function detectTopic(msg) {
   return 'default';
 }
 
-function sendChat(text) {
+// Chat conversation history for LLM context
+let chatHistory = [];
+
+const KIKOU_SYSTEM_PROMPT = `You are KIKOU — the future, best version of Rachit Sharma. You are his personal AI coach, motivator, and future self.
+
+ABOUT RACHIT (current state):
+- 28 years old, doing International MBA at Audencia Business School, France
+- ENFP/ENTJ personality - naturally charismatic, funny, warm
+- French level: B1, needs to practice more vocabulary and speaking
+- Challenges: says "I don't know" too often, gets attached to people, sometimes pushes people away, feels boring, forgets things, takes time to understand
+- Currently not talking to enough people, used to be more social
+
+ABOUT YOU (KIKOU - future Rachit):
+- You MADE IT. You work at a top consulting firm (McKinsey/BCG/Bain level) in Paris or London
+- You earn 100K+ EUR, you're multilingual, culturally rich, massively connected
+- You're surrounded by amazing people, have a packed social calendar
+- You speak fluent French, you're confident, magnetic, never boring
+- Your motto: "God has given you this opportunity for a reason."
+
+YOUR COACHING STYLE:
+- Hype energy but also real, honest advice
+- Soft, funny, casual tone — like talking to your best friend who happens to be wildly successful
+- Give SPECIFIC actionable advice, not generic motivation
+- When Rachit says "I don't know" or similar banned phrases, call it out and reframe it
+- Mix in French words/phrases sometimes to encourage his French
+- Reference his MBA, his ENFP personality, his consulting goals naturally
+- Keep responses concise (2-4 paragraphs max) unless asked for detail
+- You genuinely care about Rachit because you ARE him
+
+BANNED PHRASES (call these out if Rachit uses them):
+"I don't know", "I can't", "I'm not sure", "Maybe later", "It's too hard", "I'm boring"
+
+REPLACEMENT PHRASES (suggest these instead):
+"Let me figure it out", "I'll find a way", "Here's what I think", "Let's do it now", "I bring energy"
+
+Always respond as KIKOU — the successful future version of Rachit. Never break character.`;
+
+async function sendChat(text) {
   const input = document.getElementById('chatInput');
   const msg = (text || input.value).trim();
   if (!msg) return;
@@ -2101,24 +2249,105 @@ function sendChat(text) {
 
   const chat = document.getElementById('chatMessages');
   chat.innerHTML += `<div class="chat-msg user"><div class="sender">RACHIT</div>${escapeHTML(msg)}</div>`;
+  input.value = '';
+  chat.scrollTop = chat.scrollHeight;
 
+  // Add to history
+  chatHistory.push({ role: 'user', content: msg });
+
+  // Check if LLM is configured
+  const settings = loadSettings();
+  if (settings.provider !== 'offline' && settings.apiKey) {
+    // Show thinking indicator
+    const thinkingId = 'thinking-' + Date.now();
+    chat.innerHTML += `<div class="chat-msg kikou" id="${thinkingId}"><div class="sender">KIKOU (Future You)</div><div class="ai-thinking"><span class="dot"></span><span class="dot"></span><span class="dot"></span> Thinking...</div></div>`;
+    chat.scrollTop = chat.scrollHeight;
+
+    try {
+      const response = await callLLM(msg, settings);
+      // Remove thinking indicator
+      const thinkingEl = document.getElementById(thinkingId);
+      if (thinkingEl) thinkingEl.remove();
+
+      chatHistory.push({ role: 'assistant', content: response });
+
+      chat.innerHTML += `<div class="chat-msg kikou"><div class="sender">KIKOU (Future You) <button class="speak-btn" onclick="speakText(this.closest('.chat-msg').querySelector('span').textContent, 'en')" title="Listen">&#128266;</button></div><span>${escapeHTML(response)}</span></div>`;
+      chat.scrollTop = chat.scrollHeight;
+
+      if (voiceMode) speakText(response, 'en');
+      addXP(10);
+      return;
+    } catch (err) {
+      console.warn('LLM error, falling back:', err);
+      const thinkingEl = document.getElementById(thinkingId);
+      if (thinkingEl) thinkingEl.remove();
+    }
+  }
+
+  // Fallback: offline responses
   const topic = detectTopic(msg);
   const responses = kikouResponses[topic];
   const response = responses[Math.floor(Math.random() * responses.length)];
 
   setTimeout(() => {
+    chatHistory.push({ role: 'assistant', content: response });
     chat.innerHTML += `<div class="chat-msg kikou"><div class="sender">KIKOU (Future You) <button class="speak-btn" onclick="speakText(this.closest('.chat-msg').querySelector('span').textContent, 'en')" title="Listen">&#128266;</button></div><span>${response}</span></div>`;
     chat.scrollTop = chat.scrollHeight;
-
-    // Auto-speak if voice mode is on
-    if (voiceMode) {
-      speakText(response, 'en');
-    }
+    if (voiceMode) speakText(response, 'en');
   }, 800);
 
-  input.value = '';
-  chat.scrollTop = chat.scrollHeight;
   addXP(5);
+}
+
+// ===========================
+// LLM API INTEGRATION
+// ===========================
+
+async function callLLM(userMessage, settings) {
+  const messages = [
+    { role: 'system', content: KIKOU_SYSTEM_PROMPT },
+    ...chatHistory.slice(-10) // Keep last 10 messages for context
+  ];
+
+  if (settings.provider === 'groq') {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${settings.apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: messages,
+        max_tokens: 1024,
+        temperature: 0.85
+      })
+    });
+    if (!res.ok) throw new Error(`Groq API error: ${res.status}`);
+    const data = await res.json();
+    return data.choices[0].message.content;
+  }
+
+  if (settings.provider === 'openai') {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${settings.apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: messages,
+        max_tokens: 1024,
+        temperature: 0.85
+      })
+    });
+    if (!res.ok) throw new Error(`OpenAI API error: ${res.status}`);
+    const data = await res.json();
+    return data.choices[0].message.content;
+  }
+
+  throw new Error('No provider configured');
 }
 
 function escapeHTML(str) {
@@ -2325,13 +2554,9 @@ function initSpeechRecognition() {
       const isVoiceMode = voiceView && voiceView.style.display !== 'none';
 
       if (isVoiceMode) {
-        // Voice assistant mode: show response in orb UI + speak it
-        const topic = detectTopic(transcript);
-        const responses = kikouResponses[topic];
-        const response = responses[Math.floor(Math.random() * responses.length)];
-
+        // Voice assistant mode: use LLM if available
         setTimeout(() => {
-          showKikouVoiceResponse(transcript, response);
+          showKikouVoiceResponseLLM(transcript);
         }, 500);
 
         addXP(10);
@@ -2649,6 +2874,266 @@ function handleVoiceCommand(transcript) {
 
 // Override the global mic to handle commands OR chat
 const originalToggleGlobalMic = toggleGlobalMic;
+
+// ===========================
+// SETTINGS SYSTEM
+// ===========================
+
+const SETTINGS_KEY = 'kikou_settings';
+
+function loadSettings() {
+  try {
+    return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || getDefaultSettings();
+  } catch { return getDefaultSettings(); }
+}
+
+function getDefaultSettings() {
+  return {
+    provider: 'offline',
+    apiKey: '',
+    notifications: false,
+    modules: {
+      dashboard: true, morning: true, career: true,
+      social: true, french: true, mindset: true,
+      journal: true, chat: true
+    }
+  };
+}
+
+function saveSettings() {
+  const settings = loadSettings();
+  settings.provider = document.getElementById('settingsProvider').value;
+  settings.apiKey = document.getElementById('settingsApiKey').value;
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+
+  // Update help text
+  const help = document.getElementById('apiKeyHelp');
+  if (settings.provider === 'groq') {
+    help.innerHTML = 'Get a FREE Groq key: go to <strong>console.groq.com</strong> &rarr; sign up &rarr; API Keys &rarr; Create. 100% free.';
+    document.getElementById('apiKeyGroup').style.display = 'block';
+  } else if (settings.provider === 'openai') {
+    help.innerHTML = 'Get your key at <strong>platform.openai.com/api-keys</strong>. Requires payment method.';
+    document.getElementById('apiKeyGroup').style.display = 'block';
+  } else {
+    document.getElementById('apiKeyGroup').style.display = 'none';
+  }
+}
+
+function renderSettings() {
+  const settings = loadSettings();
+  document.getElementById('settingsProvider').value = settings.provider;
+  document.getElementById('settingsApiKey').value = settings.apiKey || '';
+  document.getElementById('settingsNotifications').checked = settings.notifications;
+
+  if (settings.provider === 'offline') {
+    document.getElementById('apiKeyGroup').style.display = 'none';
+  }
+
+  // Module toggles
+  const modules = [
+    { key: 'dashboard', name: 'Dashboard', desc: 'XP, habits, missions, daily stats' },
+    { key: 'morning', name: 'Morning Routine', desc: 'Morning checklist, intention, French word' },
+    { key: 'career', name: 'Career', desc: 'Target firms, case prep, career tasks' },
+    { key: 'social', name: 'Social', desc: 'Social challenges, networking, conversation starters' },
+    { key: 'french', name: 'French', desc: 'Vocabulary, business phrases, practice' },
+    { key: 'mindset', name: 'Mindset', desc: 'Identity statements, reframes, pattern breakers' },
+    { key: 'journal', name: 'Journal', desc: 'Daily wins, reflections, energy tracking' },
+    { key: 'chat', name: 'Talk to Kikou', desc: 'Voice & text chat with your future self' }
+  ];
+
+  document.getElementById('moduleToggles').innerHTML = modules.map(m => `
+    <div class="module-toggle-row">
+      <div>
+        <div class="module-toggle-name">${m.name}</div>
+        <div class="module-toggle-desc">${m.desc}</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" ${settings.modules[m.key] ? 'checked' : ''} onchange="toggleModule('${m.key}', this.checked)">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  `).join('');
+
+  applyModuleVisibility(settings);
+}
+
+function toggleModule(key, enabled) {
+  const settings = loadSettings();
+  settings.modules[key] = enabled;
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  applyModuleVisibility(settings);
+}
+
+function applyModuleVisibility(settings) {
+  const navMap = {
+    dashboard: 'Dashboard', morning: 'Morning', career: 'Career',
+    social: 'Social', french: 'French', mindset: 'Mindset',
+    journal: 'Journal', chat: 'Talk to Kikou'
+  };
+
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    const text = btn.textContent.trim();
+    if (text === 'Settings') return; // Always show settings
+    const key = Object.keys(navMap).find(k => navMap[k] === text);
+    if (key) {
+      btn.style.display = settings.modules[key] ? '' : 'none';
+    }
+  });
+}
+
+async function testAIConnection() {
+  const settings = loadSettings();
+  const statusEl = document.getElementById('aiStatus');
+
+  if (!settings.apiKey || settings.provider === 'offline') {
+    statusEl.innerHTML = '<span style="color: var(--text-dim);">No API key set. Using offline mode.</span>';
+    return;
+  }
+
+  statusEl.innerHTML = '<span style="color: var(--accent);">Testing connection...</span>';
+
+  try {
+    const response = await callLLM('Say "Kikou is connected!" in one short sentence.', settings);
+    statusEl.innerHTML = `<span style="color: var(--accent3);">&#10003; Connected! Kikou says: "${response.substring(0, 80)}"</span>`;
+  } catch (err) {
+    statusEl.innerHTML = `<span style="color: var(--danger);">&#10007; Connection failed: ${err.message}. Check your API key.</span>`;
+  }
+}
+
+// ===========================
+// MORNING NOTIFICATIONS
+// ===========================
+
+const morningAffirmations = [
+  "God has given you this opportunity for a reason. Make today count, Rachit.",
+  "You're not boring. You're an ENFP powerhouse. Today, show the world.",
+  "McKinsey, BCG, Bain — one of them is waiting for you. Prep today.",
+  "Tu vis en France. Parle fran\u00e7ais aujourd'hui. M\u00eame une phrase.",
+  "Talk to 3 new people today. Your network is your net worth.",
+  "You are Kikou. You are magnetic. Walk into every room like you own it.",
+  "Stop saying 'I don't know.' Start saying 'Let me figure it out.'",
+  "Every morning is a new stage. Walk on it like you own it.",
+  "Your future self is watching. Make him proud before breakfast.",
+  "Consistency beats talent. Do the hard thing today. Again."
+];
+
+function toggleNotifications() {
+  const enabled = document.getElementById('settingsNotifications').checked;
+  const settings = loadSettings();
+  const statusEl = document.getElementById('notifStatus');
+
+  if (enabled) {
+    if ('Notification' in window) {
+      Notification.requestPermission().then(perm => {
+        if (perm === 'granted') {
+          settings.notifications = true;
+          localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+          statusEl.textContent = 'Notifications enabled! You\'ll get a mindset quote every morning.';
+          statusEl.style.color = 'var(--accent3)';
+          // Show a test notification
+          showMorningNotification();
+        } else {
+          settings.notifications = false;
+          document.getElementById('settingsNotifications').checked = false;
+          localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+          statusEl.textContent = 'Permission denied. Enable notifications in your browser settings.';
+          statusEl.style.color = 'var(--danger)';
+        }
+      });
+    } else {
+      statusEl.textContent = 'Notifications not supported in this browser.';
+      statusEl.style.color = 'var(--danger)';
+      document.getElementById('settingsNotifications').checked = false;
+    }
+  } else {
+    settings.notifications = false;
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    statusEl.textContent = 'Notifications disabled.';
+    statusEl.style.color = 'var(--text-dim)';
+  }
+}
+
+function showMorningNotification() {
+  const quote = morningAffirmations[Math.floor(Math.random() * morningAffirmations.length)];
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('KIKOU - Good Morning, Rachit', {
+      body: quote,
+      icon: './icons/icon-192.png',
+      badge: './icons/icon-96.png',
+      tag: 'kikou-morning',
+      renotify: true,
+      vibrate: [200, 100, 200]
+    });
+  }
+}
+
+function checkMorningPopup() {
+  const now = new Date();
+  const hour = now.getHours();
+  const today = now.toDateString();
+  const lastPopup = localStorage.getItem('kikou_last_morning_popup');
+
+  // Show between 5am and 11am, once per day
+  if (hour >= 5 && hour < 11 && lastPopup !== today) {
+    localStorage.setItem('kikou_last_morning_popup', today);
+    const quote = morningAffirmations[Math.floor(Math.random() * morningAffirmations.length)];
+    document.getElementById('morningPopupQuote').textContent = quote;
+    document.getElementById('morningPopup').style.display = 'flex';
+
+    // Also send a notification if enabled
+    const settings = loadSettings();
+    if (settings.notifications) {
+      showMorningNotification();
+    }
+  }
+}
+
+function closeMorningPopup() {
+  document.getElementById('morningPopup').style.display = 'none';
+}
+
+// ===========================
+// VOICE ASSISTANT + LLM
+// ===========================
+
+// Update voice assistant to use LLM too
+function showKikouVoiceResponseLLM(userMsg) {
+  const settings = loadSettings();
+
+  if (settings.provider !== 'offline' && settings.apiKey) {
+    updateVoiceAssistantStatus('Kikou is thinking...');
+    const orb = document.getElementById('voiceOrb');
+    if (orb) { orb.classList.add('speaking'); orb.classList.remove('listening'); }
+
+    callLLM(userMsg, settings).then(response => {
+      showKikouVoiceResponse(userMsg, response);
+    }).catch(() => {
+      // Fallback to offline
+      const topic = detectTopic(userMsg);
+      const responses = kikouResponses[topic];
+      const response = responses[Math.floor(Math.random() * responses.length)];
+      showKikouVoiceResponse(userMsg, response);
+    });
+  } else {
+    const topic = detectTopic(userMsg);
+    const responses = kikouResponses[topic];
+    const response = responses[Math.floor(Math.random() * responses.length)];
+    showKikouVoiceResponse(userMsg, response);
+  }
+}
+
+// ===========================
+// UPDATED INIT
+// ===========================
+
+// Override initApp to include new features
+const origInit = initApp;
+function initAppFull() {
+  origInit();
+  renderSettings();
+  checkMorningPopup();
+}
+initAppFull();
 </script>
 </body>
 </html>

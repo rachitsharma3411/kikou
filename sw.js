@@ -1,5 +1,5 @@
 // KIKOU Service Worker - PWA + Offline + Auto-generated Icons
-const CACHE_NAME = 'kikou-v3';
+const CACHE_NAME = 'kikou-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
