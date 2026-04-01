@@ -521,6 +521,57 @@ body::before {
 .ai-thinking .dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes aiDot { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
+/* Theme picker grid */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.theme-card {
+  border-radius: 14px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-card:hover { transform: translateY(-2px); }
+
+.theme-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(245,158,11,0.2);
+}
+
+.theme-card.active::after {
+  content: '\2713';
+  position: absolute; top: 8px; right: 10px;
+  width: 22px; height: 22px;
+  background: var(--accent);
+  color: #000;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800;
+}
+
+.theme-card-preview {
+  height: 50px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 18px; letter-spacing: 2px;
+}
+
+.theme-card-name {
+  font-size: 13px; font-weight: 700; text-align: center;
+}
+
+.theme-card-desc {
+  font-size: 10px; text-align: center; margin-top: 2px; opacity: 0.6;
+}
+
 /* Voice Orb - Main Assistant UI */
 .voice-orb {
   width: 160px; height: 160px;
@@ -1395,6 +1446,12 @@ body::before {
     <div class="quote-box">
       <div class="quote-text">Make Kikou yours. Toggle what matters, hide what doesn't.</div>
       <div class="quote-sub">SETTINGS & CUSTOMIZATION</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#127912;</span> Theme</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">Pick the vibe that matches your energy.</p>
+      <div class="theme-grid" id="themeGrid"></div>
     </div>
 
     <div class="card">
@@ -2873,6 +2930,207 @@ function handleVoiceCommand(transcript) {
 }
 
 // Override the global mic to handle commands OR chat
+// ===========================
+// THEME ENGINE
+// ===========================
+
+const THEMES = {
+  'amber-gold': {
+    name: 'Amber Gold',
+    desc: 'Default. Bold & warm.',
+    bgDark: '#0a0a0f', bgCard: '#12121a',
+    accent: '#f59e0b', accent2: '#8b5cf6', accent3: '#10b981',
+    text: '#e2e8f0', textDim: '#94a3b8', textBright: '#ffffff',
+    danger: '#ef4444', border: 'rgba(255,255,255,0.06)',
+    previewBg: 'linear-gradient(135deg, #0a0a0f, #1a1a2e)',
+    previewAccent: '#f59e0b',
+    bannerGrad: 'linear-gradient(135deg, #f59e0b, #d97706, #b45309)'
+  },
+  'ocean-blue': {
+    name: 'Ocean Blue',
+    desc: 'Cool & focused.',
+    bgDark: '#080c14', bgCard: '#0f1520',
+    accent: '#3b82f6', accent2: '#06b6d4', accent3: '#22d3ee',
+    text: '#e2e8f0', textDim: '#8ba3c4', textBright: '#ffffff',
+    danger: '#ef4444', border: 'rgba(59,130,246,0.08)',
+    previewBg: 'linear-gradient(135deg, #080c14, #0f1520)',
+    previewAccent: '#3b82f6',
+    bannerGrad: 'linear-gradient(135deg, #3b82f6, #2563eb, #1d4ed8)'
+  },
+  'emerald-green': {
+    name: 'Emerald',
+    desc: 'Growth energy.',
+    bgDark: '#060f0a', bgCard: '#0d1a12',
+    accent: '#10b981', accent2: '#34d399', accent3: '#6ee7b7',
+    text: '#e2e8f0', textDim: '#86b89e', textBright: '#ffffff',
+    danger: '#ef4444', border: 'rgba(16,185,129,0.08)',
+    previewBg: 'linear-gradient(135deg, #060f0a, #0d1a12)',
+    previewAccent: '#10b981',
+    bannerGrad: 'linear-gradient(135deg, #10b981, #059669, #047857)'
+  },
+  'royal-purple': {
+    name: 'Royal Purple',
+    desc: 'Ambition & power.',
+    bgDark: '#0c0815', bgCard: '#140f1f',
+    accent: '#a78bfa', accent2: '#c084fc', accent3: '#e879f9',
+    text: '#e2e8f0', textDim: '#a09abc', textBright: '#ffffff',
+    danger: '#ef4444', border: 'rgba(167,139,250,0.08)',
+    previewBg: 'linear-gradient(135deg, #0c0815, #140f1f)',
+    previewAccent: '#a78bfa',
+    bannerGrad: 'linear-gradient(135deg, #a78bfa, #8b5cf6, #7c3aed)'
+  },
+  'rose-pink': {
+    name: 'Rose',
+    desc: 'Soft & confident.',
+    bgDark: '#120a0d', bgCard: '#1c1015',
+    accent: '#f472b6', accent2: '#fb7185', accent3: '#fda4af',
+    text: '#f1e4e8', textDim: '#b89aa4', textBright: '#ffffff',
+    danger: '#ef4444', border: 'rgba(244,114,182,0.08)',
+    previewBg: 'linear-gradient(135deg, #120a0d, #1c1015)',
+    previewAccent: '#f472b6',
+    bannerGrad: 'linear-gradient(135deg, #f472b6, #ec4899, #db2777)'
+  },
+  'sunset-fire': {
+    name: 'Sunset Fire',
+    desc: 'Passion & drive.',
+    bgDark: '#110808', bgCard: '#1a0e0c',
+    accent: '#f97316', accent2: '#ef4444', accent3: '#fbbf24',
+    text: '#f1e2dc', textDim: '#b89888', textBright: '#ffffff',
+    danger: '#ef4444', border: 'rgba(249,115,22,0.08)',
+    previewBg: 'linear-gradient(135deg, #110808, #1a0e0c)',
+    previewAccent: '#f97316',
+    bannerGrad: 'linear-gradient(135deg, #f97316, #ef4444, #dc2626)'
+  },
+  'neon-cyber': {
+    name: 'Neon Cyber',
+    desc: 'Futuristic edge.',
+    bgDark: '#050510', bgCard: '#0a0a1a',
+    accent: '#00ff88', accent2: '#00d4ff', accent3: '#ff00ff',
+    text: '#d0f0e0', textDim: '#6a9a80', textBright: '#ffffff',
+    danger: '#ff3366', border: 'rgba(0,255,136,0.06)',
+    previewBg: 'linear-gradient(135deg, #050510, #0a0a1a)',
+    previewAccent: '#00ff88',
+    bannerGrad: 'linear-gradient(135deg, #00ff88, #00d4ff, #0088ff)'
+  },
+  'arctic-light': {
+    name: 'Arctic Light',
+    desc: 'Clean & minimal.',
+    bgDark: '#f0f2f5', bgCard: '#ffffff',
+    accent: '#2563eb', accent2: '#7c3aed', accent3: '#059669',
+    text: '#1e293b', textDim: '#64748b', textBright: '#0f172a',
+    danger: '#dc2626', border: 'rgba(0,0,0,0.08)',
+    previewBg: 'linear-gradient(135deg, #f0f2f5, #ffffff)',
+    previewAccent: '#2563eb',
+    bannerGrad: 'linear-gradient(135deg, #2563eb, #3b82f6, #60a5fa)'
+  }
+};
+
+function renderThemeGrid(settings) {
+  const current = settings.theme || 'amber-gold';
+  const grid = document.getElementById('themeGrid');
+  if (!grid) return;
+
+  grid.innerHTML = Object.entries(THEMES).map(([key, t]) => `
+    <div class="theme-card ${key === current ? 'active' : ''}" onclick="selectTheme('${key}')"
+         style="background: ${t.bgCard}; border-color: ${key === current ? t.accent : 'transparent'};">
+      <div class="theme-card-preview" style="background: ${t.previewBg}; border: 1px solid ${t.accent}30;">
+        <span style="color: ${t.previewAccent};">K</span>
+      </div>
+      <div class="theme-card-name" style="color: ${t.text};">${t.name}</div>
+      <div class="theme-card-desc" style="color: ${t.textDim};">${t.desc}</div>
+    </div>
+  `).join('');
+}
+
+function selectTheme(key) {
+  const settings = loadSettings();
+  settings.theme = key;
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  applyTheme(key);
+  renderThemeGrid(settings);
+}
+
+function applyTheme(key) {
+  const t = THEMES[key] || THEMES['amber-gold'];
+  const root = document.documentElement;
+
+  root.style.setProperty('--bg-dark', t.bgDark);
+  root.style.setProperty('--bg-card', t.bgCard);
+  root.style.setProperty('--accent', t.accent);
+  root.style.setProperty('--accent-glow', t.accent + '4d');
+  root.style.setProperty('--accent2', t.accent2);
+  root.style.setProperty('--accent2-glow', t.accent2 + '4d');
+  root.style.setProperty('--accent3', t.accent3);
+  root.style.setProperty('--text', t.text);
+  root.style.setProperty('--text-dim', t.textDim);
+  root.style.setProperty('--text-bright', t.textBright);
+  root.style.setProperty('--danger', t.danger);
+  root.style.setProperty('--border', t.border);
+
+  // Update body background
+  document.body.style.background = t.bgDark;
+
+  // Update affirmation banner gradient
+  const banner = document.getElementById('affirmationBanner');
+  if (banner) banner.style.background = t.bannerGrad;
+
+  // Update logo gradient
+  const logo = document.querySelector('.logo');
+  if (logo) logo.style.background = `linear-gradient(135deg, ${t.accent}, ${t.accent2})`;
+  if (logo) { logo.style.webkitBackgroundClip = 'text'; logo.style.webkitTextFillColor = 'transparent'; }
+
+  // Update splash logo
+  const splashLogo = document.querySelector('.splash-logo');
+  if (splashLogo) splashLogo.style.background = `linear-gradient(135deg, ${t.accent}, ${t.accent2}, ${t.accent3})`;
+  if (splashLogo) { splashLogo.style.webkitBackgroundClip = 'text'; splashLogo.style.webkitTextFillColor = 'transparent'; }
+
+  // Update splash enter button
+  const splashBtn = document.querySelector('.splash-enter');
+  if (splashBtn) splashBtn.style.background = `linear-gradient(135deg, ${t.accent}, ${t.accent}cc)`;
+
+  // Update floating mic
+  const mic = document.getElementById('floatingMic');
+  if (mic) mic.style.background = `linear-gradient(135deg, ${t.accent}, ${t.accent}cc)`;
+
+  // Update header time color
+  const time = document.getElementById('headerTime');
+  if (time) time.style.color = t.accent;
+
+  // Update quote boxes
+  document.querySelectorAll('.quote-box').forEach(q => {
+    q.style.background = `linear-gradient(135deg, ${t.accent}14, ${t.accent2}14)`;
+    q.style.borderColor = t.accent + '33';
+  });
+
+  // Update stat numbers
+  document.querySelectorAll('.stat-number').forEach(s => {
+    s.style.background = `linear-gradient(135deg, ${t.accent}, ${t.accent2})`;
+    s.style.webkitBackgroundClip = 'text';
+    s.style.webkitTextFillColor = 'transparent';
+  });
+
+  // Update primary buttons
+  document.querySelectorAll('.btn-primary').forEach(b => {
+    b.style.background = `linear-gradient(135deg, ${t.accent}, ${t.accent}cc)`;
+  });
+
+  // Update nav active
+  document.querySelectorAll('.nav-btn.active').forEach(b => {
+    b.style.color = t.accent;
+  });
+
+  // For light theme, adjust text colors on header/nav
+  if (key === 'arctic-light') {
+    document.querySelector('.top-header').style.background = 'rgba(240,242,245,0.95)';
+    document.querySelector('.nav').style.background = 'rgba(255,255,255,0.95)';
+    document.querySelector('.header-motto').style.color = t.textDim;
+  } else {
+    document.querySelector('.top-header').style.background = 'rgba(10,10,15,0.9)';
+    document.querySelector('.nav').style.background = 'rgba(18,18,26,0.95)';
+    document.querySelector('.header-motto').style.color = 'var(--text-dim)';
+  }
+}
+
 const originalToggleGlobalMic = toggleGlobalMic;
 
 // ===========================
@@ -2892,6 +3150,7 @@ function getDefaultSettings() {
     provider: 'offline',
     apiKey: '',
     notifications: false,
+    theme: 'amber-gold',
     modules: {
       dashboard: true, morning: true, career: true,
       social: true, french: true, mindset: true,
@@ -2924,6 +3183,12 @@ function renderSettings() {
   document.getElementById('settingsProvider').value = settings.provider;
   document.getElementById('settingsApiKey').value = settings.apiKey || '';
   document.getElementById('settingsNotifications').checked = settings.notifications;
+
+  // Render theme grid
+  renderThemeGrid(settings);
+
+  // Apply current theme
+  applyTheme(settings.theme || 'amber-gold');
 
   if (settings.provider === 'offline') {
     document.getElementById('apiKeyGroup').style.display = 'none';
