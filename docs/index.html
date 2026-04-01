@@ -1,384 +1,3406 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Derivatives Risk Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <style>
-    :root {
-      --bg:        #0d1117;
-      --surface:   #161b22;
-      --border:    #21262d;
-      --accent:    #1f6feb;
-      --accent2:   #388bfd;
-      --green:     #3fb950;
-      --red:       #f85149;
-      --amber:     #d29922;
-      --text:      #e6edf3;
-      --muted:     #8b949e;
-      --card-h:    140px;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; min-height: 100vh; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#f59e0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KIKOU">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="msapplication-TileColor" content="#0a0a0f">
+<meta name="description" content="KIKOU - Personal growth agent. Career, Social, French, Mindset coaching.">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>KIKOU - Your Future Self</title>
+<style>
+:root {
+  --bg-dark: #0a0a0f;
+  --bg-card: #12121a;
+  --bg-card-hover: #1a1a2e;
+  --accent: #f59e0b;
+  --accent-glow: rgba(245, 158, 11, 0.3);
+  --accent2: #8b5cf6;
+  --accent2-glow: rgba(139, 92, 246, 0.3);
+  --accent3: #10b981;
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --text-bright: #ffffff;
+  --danger: #ef4444;
+  --border: rgba(255,255,255,0.06);
+}
 
-    /* ── Header ── */
-    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-    header h1 { font-size: 1.1rem; font-weight: 600; letter-spacing: .3px; }
-    header h1 span { color: var(--accent2); }
-    .header-meta { display: flex; align-items: center; gap: 16px; }
-    .badge { font-size: .7rem; padding: 3px 10px; border-radius: 20px; font-weight: 600; letter-spacing: .5px; }
-    .badge-live { background: rgba(63,185,80,.15); color: var(--green); border: 1px solid rgba(63,185,80,.3); }
-    .badge-breach { background: rgba(248,81,73,.15); color: var(--red); border: 1px solid rgba(248,81,73,.3); }
-    .badge-ok    { background: rgba(31,111,235,.15); color: var(--accent2); border: 1px solid rgba(31,111,235,.3); }
-    #last-updated { font-size: .75rem; color: var(--muted); }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-    /* ── Layout ── */
-    main { max-width: 1400px; margin: 0 auto; padding: 28px 24px 60px; }
-    section { margin-bottom: 32px; }
-    .section-title { font-size: .7rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg-dark);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-    /* ── Cards grid ── */
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; position: relative; overflow: hidden; transition: border-color .2s; }
-    .card:hover { border-color: var(--accent); }
-    .card::before { content: ''; position: absolute; inset: 0; opacity: .04; background: linear-gradient(135deg, var(--accent2), transparent); pointer-events: none; }
-    .card-label { font-size: .7rem; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-    .card-value { font-size: 1.65rem; font-weight: 700; letter-spacing: -.5px; line-height: 1; }
-    .card-sub   { font-size: .75rem; color: var(--muted); margin-top: 8px; }
-    .pos  { color: var(--green); }
-    .neg  { color: var(--red); }
-    .neu  { color: var(--text); }
-    .card-icon { position: absolute; top: 16px; right: 16px; font-size: 1.4rem; opacity: .25; }
+/* Animated background */
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle at 30% 40%, rgba(245,158,11,0.03) 0%, transparent 50%),
+              radial-gradient(circle at 70% 60%, rgba(139,92,246,0.03) 0%, transparent 50%),
+              radial-gradient(circle at 50% 50%, rgba(16,185,129,0.02) 0%, transparent 50%);
+  animation: bgPulse 20s ease-in-out infinite;
+  z-index: 0;
+}
 
-    /* ── Charts row ── */
-    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 860px) { .charts-row { grid-template-columns: 1fr; } }
-    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
-    .chart-title { font-size: .8rem; font-weight: 600; color: var(--muted); margin-bottom: 16px; }
-    .chart-wrap { position: relative; height: 220px; }
+@keyframes bgPulse {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(10deg); }
+}
 
-    /* ── Greeks bar section ── */
-    .greeks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
-    .greek-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-    .greek-name { font-size: .7rem; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-    .greek-val  { font-size: 1.25rem; font-weight: 700; }
-    .greek-limit-bar { height: 4px; border-radius: 2px; background: var(--border); margin-top: 10px; overflow: hidden; }
-    .greek-limit-fill { height: 100%; border-radius: 2px; transition: width .8s ease; }
-    .fill-ok     { background: var(--green); }
-    .fill-warn   { background: var(--amber); }
-    .fill-breach { background: var(--red); }
-    .greek-limit-label { font-size: .65rem; color: var(--muted); margin-top: 4px; display: flex; justify-content: space-between; }
+/* Top Header */
+.top-header {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 60px;
+  background: rgba(10,10,15,0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  z-index: 100;
+}
 
-    /* ── Positions table ── */
-    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
-    table { width: 100%; border-collapse: collapse; font-size: .82rem; }
-    thead tr { background: #1c2128; }
-    th { padding: 11px 14px; text-align: left; font-size: .68rem; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
-    tbody tr { border-top: 1px solid var(--border); transition: background .15s; }
-    tbody tr:hover { background: rgba(255,255,255,.03); }
-    td { padding: 11px 14px; white-space: nowrap; }
-    .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: .68rem; font-weight: 700; }
-    .pill-call { background: rgba(63,185,80,.15); color: var(--green); }
-    .pill-put  { background: rgba(248,81,73,.15); color: var(--red); }
+.logo {
+  font-size: 24px; font-weight: 900;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: 3px;
+}
 
-    /* ── Alerts ── */
-    .alerts-list { display: flex; flex-direction: column; gap: 8px; }
-    .alert-item { background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.25); border-radius: 8px; padding: 12px 16px; font-size: .82rem; display: flex; align-items: center; gap: 10px; }
-    .alert-item::before { content: '⚠'; font-size: 1rem; }
-    .no-alerts { background: rgba(63,185,80,.08); border: 1px solid rgba(63,185,80,.25); border-radius: 8px; padding: 12px 16px; font-size: .82rem; color: var(--green); }
+.header-motto {
+  font-size: 12px; color: var(--text-dim); font-style: italic;
+  max-width: 300px; text-align: right;
+}
 
-    /* ── Market context ── */
-    .market-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
-    .market-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
-    .market-ticker { font-size: .8rem; font-weight: 700; }
-    .market-pct { font-size: .9rem; font-weight: 700; }
+.header-time {
+  font-size: 13px; color: var(--accent); font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
 
-    /* ── Footer ── */
-    footer { text-align: center; color: var(--muted); font-size: .72rem; padding: 20px; border-top: 1px solid var(--border); }
+/* Navigation */
+.nav {
+  position: fixed; top: 60px; left: 0; right: 0;
+  height: 56px;
+  background: rgba(18,18,26,0.95);
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  padding: 0 16px;
+  z-index: 99;
+  overflow-x: auto;
+}
 
-    /* ── Loader ── */
-    #loader { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 999; }
-    .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent2); border-radius: 50%; animation: spin .8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    #loader p { color: var(--muted); font-size: .85rem; }
-  </style>
+.nav-btn {
+  padding: 10px 18px;
+  border: none; background: transparent;
+  color: var(--text-dim); font-size: 13px; font-weight: 600;
+  cursor: pointer; border-radius: 10px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  position: relative;
+}
+
+.nav-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+.nav-btn.active {
+  color: var(--accent);
+  background: rgba(245,158,11,0.1);
+}
+
+.nav-btn.active::after {
+  content: '';
+  position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%);
+  width: 20px; height: 3px;
+  background: var(--accent); border-radius: 3px;
+}
+
+/* Main content */
+.main { padding: 136px 24px 40px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+
+.page { display: none; animation: fadeIn 0.4s ease; }
+.page.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: rgba(245,158,11,0.2);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+}
+
+.card-title {
+  font-size: 18px; font-weight: 700;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+
+.card-title .icon { font-size: 22px; }
+
+/* Grid layouts */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+
+/* Stat boxes */
+.stat-box {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-box:hover { transform: translateY(-2px); border-color: rgba(245,158,11,0.3); }
+
+.stat-number {
+  font-size: 36px; font-weight: 900;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.stat-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* Progress bars */
+.progress-track {
+  width: 100%; height: 8px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 1s ease;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+
+/* Buttons */
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #d97706);
+  color: #000;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 20px var(--accent-glow); }
+
+.btn-secondary {
+  background: rgba(139,92,246,0.15);
+  color: var(--accent2); border: 1px solid rgba(139,92,246,0.3);
+}
+.btn-secondary:hover { background: rgba(139,92,246,0.25); }
+
+.btn-ghost {
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.1); }
+
+/* Streak/habit tracker */
+.habit-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.habit-row:last-child { border-bottom: none; }
+
+.habit-name { font-weight: 600; font-size: 14px; }
+.habit-streak { font-size: 13px; color: var(--accent); font-weight: 700; }
+
+.habit-check {
+  width: 28px; height: 28px;
+  border: 2px solid var(--text-dim);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.habit-check.done {
+  background: var(--accent3);
+  border-color: var(--accent3);
+  color: #000;
+}
+
+/* Quote box */
+.quote-box {
+  background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(139,92,246,0.08));
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.quote-text {
+  font-size: 20px; font-weight: 700;
+  line-height: 1.5;
+  color: var(--text-bright);
+}
+
+.quote-sub {
+  font-size: 13px; color: var(--accent); margin-top: 12px;
+  font-weight: 600;
+}
+
+/* Chat interface */
+.chat-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  height: 500px;
+  display: flex; flex-direction: column;
+}
+
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 20px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+.chat-msg {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  animation: msgIn 0.3s ease;
+}
+
+@keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.chat-msg.kikou {
+  align-self: flex-start;
+  background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(139,92,246,0.08));
+  border: 1px solid rgba(245,158,11,0.15);
+  color: var(--text-bright);
+}
+
+.chat-msg.user {
+  align-self: flex-end;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--border);
+}
+
+.chat-msg .sender {
+  font-size: 11px; font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.chat-input-area {
+  display: flex; gap: 8px;
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  background: rgba(0,0,0,0.2);
+}
+
+.chat-input {
+  flex: 1;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.chat-input:focus { border-color: var(--accent); }
+
+.chat-send {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, var(--accent), #d97706);
+  border: none; border-radius: 12px;
+  color: #000; font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.chat-send:hover { transform: scale(1.05); }
+
+/* Voice Assistant Styles */
+.mic-btn {
+  width: 48px; height: 48px;
+  border: none; border-radius: 50%;
+  background: rgba(139,92,246,0.15);
+  color: var(--accent2);
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.mic-btn:hover { background: rgba(139,92,246,0.25); transform: scale(1.05); }
+
+.mic-btn.listening {
+  background: rgba(239,68,68,0.2);
+  color: var(--danger);
+  animation: micPulse 1.2s ease-in-out infinite;
+}
+
+.mic-btn.listening::after {
+  content: '';
+  position: absolute;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--danger);
+  animation: micRing 1.5s ease-out infinite;
+}
+
+@keyframes micPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes micRing {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+.speak-btn {
+  background: none; border: none;
+  color: var(--accent2);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  opacity: 0.6;
+}
+
+.speak-btn:hover { opacity: 1; background: rgba(139,92,246,0.15); }
+.speak-btn.speaking { opacity: 1; color: var(--accent); animation: micPulse 1s infinite; }
+
+.voice-toggle {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px;
+  background: rgba(139,92,246,0.1);
+  border: 1px solid rgba(139,92,246,0.2);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 12px; font-weight: 600;
+  color: var(--accent2);
+}
+
+.voice-toggle:hover { background: rgba(139,92,246,0.2); }
+.voice-toggle.active { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.3); color: var(--accent3); }
+
+.voice-indicator {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: background 0.3s;
+}
+
+.voice-toggle.active .voice-indicator { background: var(--accent3); box-shadow: 0 0 8px rgba(16,185,129,0.5); }
+
+.french-listen-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px;
+  background: rgba(139,92,246,0.1);
+  border: 1px solid rgba(139,92,246,0.2);
+  border-radius: 8px;
+  color: var(--accent2);
+  font-size: 11px; font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 6px;
+}
+
+.french-listen-btn:hover { background: rgba(139,92,246,0.25); }
+
+/* Floating mic button for mobile */
+.floating-mic {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #d97706);
+  border: none;
+  color: #000;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 90;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px var(--accent-glow);
+  transition: all 0.3s;
+}
+
+.floating-mic:hover { transform: scale(1.1); }
+.floating-mic.listening {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  animation: micPulse 1.2s ease-in-out infinite;
+}
+
+.voice-status {
+  position: fixed;
+  bottom: 92px; right: 16px;
+  background: rgba(10,10,15,0.95);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: var(--text-dim);
+  z-index: 90;
+  display: none;
+  max-width: 200px;
+  backdrop-filter: blur(10px);
+}
+
+.voice-status.active { display: block; }
+
+/* Toggle switch */
+.toggle-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.1); border-radius: 28px; transition: 0.3s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute; height: 22px; width: 22px; left: 3px; bottom: 3px;
+  background: white; border-radius: 50%; transition: 0.3s;
+}
+.toggle-switch input:checked + .toggle-slider { background: var(--accent3); }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+/* Module toggle row */
+.module-toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+}
+.module-toggle-row:last-child { border-bottom: none; }
+.module-toggle-name { font-weight: 600; font-size: 14px; }
+.module-toggle-desc { font-size: 11px; color: var(--text-dim); }
+
+/* AI thinking indicator */
+.ai-thinking {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--accent);
+}
+.ai-thinking .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: aiDot 1.2s infinite; }
+.ai-thinking .dot:nth-child(2) { animation-delay: 0.2s; }
+.ai-thinking .dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes aiDot { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+/* Theme picker grid */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.theme-card {
+  border-radius: 14px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-card:hover { transform: translateY(-2px); }
+
+.theme-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(245,158,11,0.2);
+}
+
+.theme-card.active::after {
+  content: '\2713';
+  position: absolute; top: 8px; right: 10px;
+  width: 22px; height: 22px;
+  background: var(--accent);
+  color: #000;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800;
+}
+
+.theme-card-preview {
+  height: 50px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 18px; letter-spacing: 2px;
+}
+
+.theme-card-name {
+  font-size: 13px; font-weight: 700; text-align: center;
+}
+
+.theme-card-desc {
+  font-size: 10px; text-align: center; margin-top: 2px; opacity: 0.6;
+}
+
+/* Voice Orb - Main Assistant UI */
+.voice-orb {
+  width: 160px; height: 160px;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.voice-orb-inner {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(139,92,246,0.15));
+  border: 2px solid rgba(245,158,11,0.3);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.4s ease;
+  z-index: 2;
+  position: relative;
+}
+
+.voice-orb:hover .voice-orb-inner {
+  transform: scale(1.05);
+  border-color: rgba(245,158,11,0.5);
+  box-shadow: 0 0 40px rgba(245,158,11,0.15);
+}
+
+.voice-orb-icon {
+  font-size: 40px;
+  transition: all 0.3s;
+}
+
+/* Listening state */
+.voice-orb.listening .voice-orb-inner {
+  background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(245,158,11,0.2));
+  border-color: rgba(239,68,68,0.5);
+  box-shadow: 0 0 50px rgba(239,68,68,0.2);
+  animation: orbPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes orbPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+/* Speaking state */
+.voice-orb.speaking .voice-orb-inner {
+  background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(139,92,246,0.2));
+  border-color: rgba(16,185,129,0.5);
+  box-shadow: 0 0 50px rgba(16,185,129,0.2);
+  animation: orbSpeak 0.8s ease-in-out infinite;
+}
+
+@keyframes orbSpeak {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.06); }
+  60% { transform: scale(0.97); }
+}
+
+/* Animated rings */
+.voice-orb-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(245,158,11,0.1);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ring1 { width: 130px; height: 130px; }
+.ring2 { width: 145px; height: 145px; }
+.ring3 { width: 160px; height: 160px; }
+
+.voice-orb.listening .ring1,
+.voice-orb.speaking .ring1 {
+  opacity: 1;
+  animation: ringExpand 2s ease-out infinite;
+}
+
+.voice-orb.listening .ring2,
+.voice-orb.speaking .ring2 {
+  opacity: 1;
+  animation: ringExpand 2s ease-out 0.4s infinite;
+}
+
+.voice-orb.listening .ring3,
+.voice-orb.speaking .ring3 {
+  opacity: 1;
+  animation: ringExpand 2s ease-out 0.8s infinite;
+}
+
+@keyframes ringExpand {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.6; border-color: rgba(245,158,11,0.3); }
+  100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; border-color: rgba(245,158,11,0); }
+}
+
+.voice-orb.listening .ring1, .voice-orb.listening .ring2, .voice-orb.listening .ring3 {
+  border-color: rgba(239,68,68,0.3);
+}
+
+.voice-orb.speaking .ring1, .voice-orb.speaking .ring2, .voice-orb.speaking .ring3 {
+  border-color: rgba(16,185,129,0.3);
+}
+
+/* Voice history items */
+.voice-history-item {
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.voice-history-item.user-msg {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  text-align: right;
+  color: var(--text-dim);
+}
+
+.voice-history-item.kikou-msg {
+  background: rgba(245,158,11,0.05);
+  border: 1px solid rgba(245,158,11,0.1);
+  color: var(--text);
+}
+
+/* French section */
+.french-word {
+  background: rgba(139,92,246,0.1);
+  border: 1px solid rgba(139,92,246,0.2);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.french-word .word {
+  font-size: 22px; font-weight: 800; color: var(--accent2);
+}
+
+.french-word .meaning {
+  font-size: 13px; color: var(--text-dim); margin-top: 4px;
+}
+
+.french-word .example {
+  font-size: 13px; color: var(--text); margin-top: 8px;
+  font-style: italic;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+}
+
+/* Checklist */
+.checklist-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.checklist-item:last-child { border-bottom: none; }
+
+.check-circle {
+  width: 24px; height: 24px; min-width: 24px;
+  border: 2px solid var(--text-dim);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.check-circle.done { background: var(--accent3); border-color: var(--accent3); color: #000; }
+
+.checklist-text { font-size: 14px; line-height: 1.5; }
+.checklist-text.done { text-decoration: line-through; color: var(--text-dim); }
+
+/* Networking tracker */
+.contact-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 10px;
+  transition: all 0.3s;
+}
+
+.contact-card:hover { border-color: rgba(245,158,11,0.3); }
+
+.contact-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 16px; color: #000;
+}
+
+.contact-info { flex: 1; }
+.contact-name { font-weight: 700; font-size: 14px; }
+.contact-detail { font-size: 12px; color: var(--text-dim); }
+
+/* Affirmation banner */
+.affirmation-banner {
+  background: linear-gradient(135deg, #f59e0b, #d97706, #b45309);
+  border-radius: 16px;
+  padding: 20px 28px;
+  color: #000;
+  font-weight: 800;
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 24px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.affirmation-banner:hover { transform: scale(1.01); box-shadow: 0 8px 30px var(--accent-glow); }
+
+/* Journal textarea */
+.journal-area {
+  width: 100%;
+  min-height: 150px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.7;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.journal-area:focus { border-color: var(--accent); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav { gap: 2px; padding: 0 8px; }
+  .nav-btn { padding: 8px 12px; font-size: 11px; }
+  .main { padding: 136px 12px 24px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .quote-text { font-size: 16px; }
+  .stat-number { font-size: 28px; }
+}
+
+/* Input with label */
+.input-group { margin-bottom: 16px; }
+.input-label { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+.input-field {
+  width: 100%; padding: 12px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text); font-size: 14px;
+  outline: none; transition: border-color 0.3s;
+}
+.input-field:focus { border-color: var(--accent); }
+
+/* Tag */
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  margin: 3px;
+}
+
+.tag-gold { background: rgba(245,158,11,0.15); color: var(--accent); }
+.tag-purple { background: rgba(139,92,246,0.15); color: var(--accent2); }
+.tag-green { background: rgba(16,185,129,0.15); color: var(--accent3); }
+.tag-red { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+/* Banned word alert */
+.banned-alert {
+  display: none;
+  position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  padding: 16px 28px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 15px;
+  z-index: 200;
+  animation: shakeIn 0.5s ease;
+  box-shadow: 0 4px 30px rgba(239,68,68,0.4);
+  text-align: center;
+}
+
+@keyframes shakeIn {
+  0% { transform: translateX(-50%) scale(0.8); }
+  25% { transform: translateX(-50%) rotate(-3deg) scale(1.05); }
+  50% { transform: translateX(-50%) rotate(3deg) scale(1.05); }
+  75% { transform: translateX(-50%) rotate(-1deg) scale(1); }
+  100% { transform: translateX(-50%) rotate(0) scale(1); }
+}
+
+.level-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 20px;
+  font-size: 12px; font-weight: 800;
+  color: #000;
+}
+
+/* Splash screen */
+.splash {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg-dark);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 1000;
+  transition: opacity 0.8s ease, visibility 0.8s;
+}
+
+.splash.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.splash-logo {
+  font-size: 64px; font-weight: 900;
+  background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: 8px;
+  animation: splashPulse 2s ease-in-out infinite;
+}
+
+@keyframes splashPulse {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.05); filter: brightness(1.2); }
+}
+
+.splash-sub {
+  margin-top: 16px;
+  font-size: 16px;
+  color: var(--text-dim);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.splash-enter {
+  margin-top: 40px;
+  padding: 14px 40px;
+  background: linear-gradient(135deg, var(--accent), #d97706);
+  border: none; border-radius: 14px;
+  color: #000; font-size: 16px; font-weight: 800;
+  cursor: pointer;
+  letter-spacing: 2px;
+  transition: all 0.3s;
+}
+
+.splash-enter:hover { transform: scale(1.05); box-shadow: 0 8px 30px var(--accent-glow); }
+</style>
 </head>
 <body>
 
-<div id="loader">
-  <div class="spinner"></div>
-  <p>Loading risk data…</p>
+<!-- Splash Screen -->
+<div class="splash" id="splash">
+  <div class="splash-logo">KIKOU</div>
+  <div class="splash-sub">Your Future Self Is Waiting</div>
+  <button class="splash-enter" onclick="enterApp()">ENTER</button>
+  <button class="splash-enter" id="installBtn" style="display:none; margin-top:12px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); font-size:14px; padding:12px 32px;" onclick="installApp()">
+    INSTALL AS APP
+  </button>
 </div>
 
-<header>
-  <h1>Derivatives <span>Risk Dashboard</span></h1>
-  <div class="header-meta">
-    <span class="badge badge-live">LIVE</span>
-    <span id="report-date" style="font-size:.8rem;color:var(--muted)"></span>
-    <span id="last-updated"></span>
+<!-- Banned word alert -->
+<div class="banned-alert" id="bannedAlert"></div>
+
+<!-- Header -->
+<div class="top-header">
+  <div class="logo">KIKOU</div>
+  <div class="header-time" id="headerTime"></div>
+  <div class="header-motto">"God has given you this opportunity for a reason."</div>
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <button class="nav-btn active" onclick="showPage('dashboard')">Dashboard</button>
+  <button class="nav-btn" onclick="showPage('morning')">Morning</button>
+  <button class="nav-btn" onclick="showPage('career')">Career</button>
+  <button class="nav-btn" onclick="showPage('social')">Social</button>
+  <button class="nav-btn" onclick="showPage('french')">French</button>
+  <button class="nav-btn" onclick="showPage('mindset')">Mindset</button>
+  <button class="nav-btn" onclick="showPage('journal')">Journal</button>
+  <button class="nav-btn" onclick="showPage('chat')">Talk to Kikou</button>
+  <button class="nav-btn" onclick="showPage('settings')">Settings</button>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+
+  <!-- ========== DASHBOARD ========== -->
+  <div class="page active" id="page-dashboard">
+
+    <div class="affirmation-banner" id="affirmationBanner" onclick="nextAffirmation()">
+      Loading your daily fire...
+    </div>
+    <div style="text-align:center; margin-top:-16px; margin-bottom:16px;">
+      <button class="french-listen-btn" style="background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.3); color:var(--accent);" onclick="speakText(document.getElementById('affirmationBanner').textContent, 'en')">&#128266; Read Aloud</button>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="icon">&#9889;</span> Today's Power Stats</div>
+        <div class="grid-3">
+          <div class="stat-box">
+            <div class="stat-number" id="statStreak">0</div>
+            <div class="stat-label">Day Streak</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number" id="statXP">0</div>
+            <div class="stat-label">Kikou XP</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number" id="statLevel">1</div>
+            <div class="stat-label">Level</div>
+          </div>
+        </div>
+        <div style="margin-top: 16px;">
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); margin-bottom: 4px;">
+            <span>Progress to next level</span>
+            <span id="xpProgress">0/100 XP</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="xpBar" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">&#127919;</span> Today's Missions</div>
+        <div id="dailyMissions"></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128293;</span> Habit Tracker</div>
+        <div id="habitTracker"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128200;</span> Growth Areas</div>
+        <div id="growthAreas"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128165;</span> Banned Words Monitor</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">These phrases are DELETED from your vocabulary. Kikou will call you out.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+        <span class="tag tag-red">"I don't know"</span>
+        <span class="tag tag-red">"I can't"</span>
+        <span class="tag tag-red">"I'm not sure"</span>
+        <span class="tag tag-red">"Maybe later"</span>
+        <span class="tag tag-red">"It's too hard"</span>
+        <span class="tag tag-red">"I'm boring"</span>
+      </div>
+      <div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px;">
+        <span class="tag tag-green">"Let me figure it out"</span>
+        <span class="tag tag-green">"I'll find a way"</span>
+        <span class="tag tag-green">"Here's what I think"</span>
+        <span class="tag tag-green">"Let's do it now"</span>
+        <span class="tag tag-green">"I bring energy"</span>
+      </div>
+    </div>
   </div>
-</header>
 
-<main>
+  <!-- ========== MORNING ROUTINE ========== -->
+  <div class="page" id="page-morning">
+    <div class="quote-box">
+      <div class="quote-text" id="morningQuote">Rise and build, Rachit.</div>
+      <div class="quote-sub">KIKOU MORNING PROTOCOL</div>
+    </div>
 
-  <!-- Summary cards -->
-  <section>
-    <div class="section-title">Portfolio Summary</div>
-    <div class="cards" id="cards-summary"></div>
-  </section>
+    <div class="card">
+      <div class="card-title"><span class="icon">&#9728;&#65039;</span> Morning Power Routine</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">Complete each step. No shortcuts. Future Rachit doesn't skip.</p>
+      <div id="morningChecklist"></div>
+    </div>
 
-  <!-- Greeks -->
-  <section>
-    <div class="section-title">Greek Exposures vs Limits</div>
-    <div class="greeks-grid" id="greeks-grid"></div>
-  </section>
-
-  <!-- Charts -->
-  <section>
-    <div class="section-title">Historical Trend</div>
-    <div class="charts-row">
-      <div class="chart-card">
-        <div class="chart-title">Portfolio MtM — 30 Days</div>
-        <div class="chart-wrap"><canvas id="chart-mtm"></canvas></div>
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128170;</span> Today's Intention</div>
+      <div class="input-group">
+        <div class="input-label">What will you CONQUER today?</div>
+        <input class="input-field" id="dailyIntention" placeholder="Today I will..." onkeydown="if(event.key==='Enter') saveIntention()">
       </div>
-      <div class="chart-card">
-        <div class="chart-title">P&amp;L Attribution</div>
-        <div class="chart-wrap"><canvas id="chart-pnl"></canvas></div>
+      <button class="btn btn-primary" onclick="saveIntention()">Lock it in</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#127891;</span> French Word of the Morning</div>
+      <div id="morningFrenchWord"></div>
+    </div>
+  </div>
+
+  <!-- ========== CAREER ========== -->
+  <div class="page" id="page-career">
+    <div class="quote-box">
+      <div class="quote-text">McKinsey. BCG. Bain. One of them has YOUR name on the door.</div>
+      <div class="quote-sub">CAREER COMMAND CENTER</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128188;</span> Target Firms</div>
+        <div class="contact-card">
+          <div class="contact-avatar">M</div>
+          <div class="contact-info">
+            <div class="contact-name">McKinsey & Company</div>
+            <div class="contact-detail">The gold standard. Strategy consulting.</div>
+          </div>
+          <span class="tag tag-gold">Target</span>
+        </div>
+        <div class="contact-card">
+          <div class="contact-avatar">B</div>
+          <div class="contact-info">
+            <div class="contact-name">Boston Consulting Group</div>
+            <div class="contact-detail">Innovation-driven consulting.</div>
+          </div>
+          <span class="tag tag-gold">Target</span>
+        </div>
+        <div class="contact-card">
+          <div class="contact-avatar">B</div>
+          <div class="contact-info">
+            <div class="contact-name">Bain & Company</div>
+            <div class="contact-detail">Results-focused. Private equity strength.</div>
+          </div>
+          <span class="tag tag-gold">Target</span>
+        </div>
+        <div class="contact-card">
+          <div class="contact-avatar">D</div>
+          <div class="contact-info">
+            <div class="contact-name">Deloitte Strategy</div>
+            <div class="contact-detail">Big 4 with consulting power.</div>
+          </div>
+          <span class="tag tag-purple">Strong</span>
+        </div>
+        <div class="contact-card">
+          <div class="contact-avatar">K</div>
+          <div class="contact-info">
+            <div class="contact-name">Kearney</div>
+            <div class="contact-detail">Operations consulting excellence.</div>
+          </div>
+          <span class="tag tag-purple">Strong</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128218;</span> Case Interview Prep</div>
+        <div id="caseTracker"></div>
+        <button class="btn btn-secondary" style="margin-top: 16px;" onclick="generateCase()">Generate Practice Case</button>
+        <div id="caseContent" style="margin-top: 16px;"></div>
       </div>
     </div>
-  </section>
 
-  <!-- Positions table -->
-  <section>
-    <div class="section-title">Open Positions</div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Ticker</th><th>Type</th><th>Strike</th><th>Expiry</th>
-            <th>Qty</th><th>Entry</th><th>Spot</th><th>Current $</th>
-            <th>MtM</th><th>Unreal. P&amp;L</th><th>$ Delta</th><th>$ Vega</th><th>IV</th>
-          </tr>
-        </thead>
-        <tbody id="positions-body"></tbody>
-      </table>
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128640;</span> Weekly Career Tasks</div>
+      <div id="careerTasks"></div>
     </div>
-  </section>
 
-  <!-- Market context -->
-  <section>
-    <div class="section-title">Market Context — Daily Moves</div>
-    <div class="market-grid" id="market-grid"></div>
-  </section>
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128176;</span> Salary Target Tracker</div>
+      <div class="grid-3">
+        <div class="stat-box">
+          <div class="stat-number" style="font-size: 24px;">100K+</div>
+          <div class="stat-label">Target Package (EUR)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" style="font-size: 24px;">Paris</div>
+          <div class="stat-label">Target City #1</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" style="font-size: 24px;">London</div>
+          <div class="stat-label">Target City #2</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <!-- Alerts -->
-  <section>
-    <div class="section-title">Risk Alerts</div>
-    <div id="alerts-box"></div>
-  </section>
+  <!-- ========== SOCIAL ========== -->
+  <div class="page" id="page-social">
+    <div class="quote-box">
+      <div class="quote-text">You don't find people boring. Boring people don't find YOU. Show up and SHINE.</div>
+      <div class="quote-sub">SOCIAL MAGNETISM ENGINE</div>
+    </div>
 
-</main>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128172;</span> Daily Social Challenges</div>
+        <div id="socialChallenges"></div>
+      </div>
 
-<footer>
-  Derivatives Risk Dashboard &nbsp;·&nbsp; Powered by Black-Scholes &amp; Claude AI &nbsp;·&nbsp;
-  <a href="https://github.com/rachitsharma3411/kikou" style="color:var(--accent2);text-decoration:none;">rachitsharma3411/kikou</a>
-</footer>
+      <div class="card">
+        <div class="card-title"><span class="icon">&#129309;</span> Networking Log</div>
+        <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">Track people you connect with. Build your empire of relationships.</p>
+        <div id="networkLog"></div>
+        <div style="margin-top: 16px;">
+          <div class="input-group">
+            <input class="input-field" id="newContactName" placeholder="Name">
+          </div>
+          <div class="input-group">
+            <input class="input-field" id="newContactContext" placeholder="Where did you meet? What did you talk about?">
+          </div>
+          <button class="btn btn-primary" onclick="addContact()">Add Connection</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128161;</span> Conversation Starters</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">Never be boring again. Use these to open conversations like a pro.</p>
+      <div id="convStarters"></div>
+      <button class="btn btn-secondary" style="margin-top: 12px;" onclick="refreshStarters()">Give me new ones</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128171;</span> Social Rules of Kikou</div>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div class="checklist-item" style="border: none; padding: 8px 0;">
+          <span style="font-size: 18px;">1.</span>
+          <span class="checklist-text"><strong>Talk to 3 new people every day.</strong> No exceptions.</span>
+        </div>
+        <div class="checklist-item" style="border: none; padding: 8px 0;">
+          <span style="font-size: 18px;">2.</span>
+          <span class="checklist-text"><strong>Ask questions, don't just answer.</strong> People love talking about themselves.</span>
+        </div>
+        <div class="checklist-item" style="border: none; padding: 8px 0;">
+          <span style="font-size: 18px;">3.</span>
+          <span class="checklist-text"><strong>Remember names.</strong> Say it 3 times in the first conversation.</span>
+        </div>
+        <div class="checklist-item" style="border: none; padding: 8px 0;">
+          <span style="font-size: 18px;">4.</span>
+          <span class="checklist-text"><strong>Follow up within 24 hours.</strong> Send a message. Stay on their radar.</span>
+        </div>
+        <div class="checklist-item" style="border: none; padding: 8px 0;">
+          <span style="font-size: 18px;">5.</span>
+          <span class="checklist-text"><strong>Never say "I'm boring."</strong> You're an ENFP. You are ENERGY. Own it.</span>
+        </div>
+        <div class="checklist-item" style="border: none; padding: 8px 0;">
+          <span style="font-size: 18px;">6.</span>
+          <span class="checklist-text"><strong>Host something.</strong> Dinners, study groups, weekend plans. Leaders gather people.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== FRENCH ========== -->
+  <div class="page" id="page-french">
+    <div class="quote-box">
+      <div class="quote-text">Tu vis en France. Tu PARLES fran&ccedil;ais. Pas d'excuses.</div>
+      <div class="quote-sub">FRENCH MASTERY ZONE</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128214;</span> Today's Vocabulary (5 Words)</div>
+        <div id="frenchVocab"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128483;&#65039;</span> Business French Phrases</div>
+        <div id="businessFrench"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#9997;&#65039;</span> French Practice Zone</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">Write something in French every day. Even one sentence. Kikou will track it.</p>
+      <textarea class="journal-area" id="frenchPractice" placeholder="Ecris quelque chose en fran&#231;ais ici... (Write something in French here)"></textarea>
+      <div style="margin-top: 12px; display: flex; gap: 8px;">
+        <button class="btn btn-primary" onclick="saveFrenchPractice()">Save Practice</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128200;</span> French Level Progress</div>
+      <div class="grid-3">
+        <div class="stat-box">
+          <div class="stat-number" style="font-size: 28px;">B1</div>
+          <div class="stat-label">Current Level</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" style="font-size: 28px;">B2</div>
+          <div class="stat-label">Next Target</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" style="font-size: 28px;">C1</div>
+          <div class="stat-label">Ultimate Goal</div>
+        </div>
+      </div>
+      <div style="margin-top: 16px;">
+        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim);">
+          <span>A1</span><span>A2</span><span>B1</span><span>B2</span><span>C1</span><span>C2</span>
+        </div>
+        <div class="progress-track" style="height: 12px; margin-top: 4px;">
+          <div class="progress-fill" style="width: 50%; background: linear-gradient(90deg, var(--accent3), var(--accent2));"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#127919;</span> Daily French Rules</div>
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 14px;">
+        <p>1. <strong>Order coffee in French every morning.</strong> No English.</p>
+        <p>2. <strong>Watch 15 min of French content</strong> (news, YouTube, Netflix FR).</p>
+        <p>3. <strong>Learn 5 new words daily</strong> and use them in a sentence.</p>
+        <p>4. <strong>Text one classmate in French.</strong> Even "Salut, &#231;a va ?"</p>
+        <p>5. <strong>Think in French for 10 minutes.</strong> Narrate your day silently.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MINDSET ========== -->
+  <div class="page" id="page-mindset">
+    <div class="quote-box">
+      <div class="quote-text">You're not lost. You're loading. And the loading screen is almost done.</div>
+      <div class="quote-sub">MINDSET REPROGRAMMING</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128142;</span> Core Identity Statements</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">Read these out loud every morning. This is who you ARE, not who you wish to be.</p>
+      <div id="identityStatements"></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="icon">&#128165;</span> Reframe Your Weaknesses</div>
+        <div id="reframes"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">&#127775;</span> Future Rachit Visualisation</div>
+        <div style="font-size: 14px; line-height: 1.8; color: var(--text);">
+          <p>Close your eyes. See this clearly:</p>
+          <p style="margin-top: 12px; padding: 16px; background: rgba(245,158,11,0.05); border-radius: 12px; border-left: 3px solid var(--accent);">
+            You walk into a glass office in Paris. You're wearing a tailored suit. Your phone buzzes with messages from friends across Europe.
+            You just closed a strategy project for a Fortune 500 client. Your team respects you. Your salary hits your account and you smile.
+            Tonight, you're hosting dinner at your apartment. 8 people. 4 languages spoken. Everyone is laughing.
+            You are <strong>Kikou</strong>. You are <strong>Rachit</strong>. You made it happen.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128736;&#65039;</span> Pattern Breakers</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">When you catch yourself in old patterns, execute these:</p>
+      <div id="patternBreakers"></div>
+    </div>
+  </div>
+
+  <!-- ========== JOURNAL ========== -->
+  <div class="page" id="page-journal">
+    <div class="quote-box">
+      <div class="quote-text">Document the journey. Future Rachit will read this and be proud.</div>
+      <div class="quote-sub">KIKOU JOURNAL</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128221;</span> Today's Entry</div>
+      <div class="input-group">
+        <div class="input-label">3 wins from today (even small ones)</div>
+        <textarea class="journal-area" id="journalWins" placeholder="1. &#10;2. &#10;3. " style="min-height: 100px;"></textarea>
+      </div>
+      <div class="input-group">
+        <div class="input-label">1 thing you could have done better</div>
+        <input class="input-field" id="journalImprove" placeholder="Next time I will...">
+      </div>
+      <div class="input-group">
+        <div class="input-label">Who did you connect with today?</div>
+        <input class="input-field" id="journalConnect" placeholder="Names and what you talked about">
+      </div>
+      <div class="input-group">
+        <div class="input-label">Rate your energy today (1-10)</div>
+        <input class="input-field" id="journalEnergy" type="number" min="1" max="10" placeholder="1-10">
+      </div>
+      <button class="btn btn-primary" onclick="saveJournal()">Save Journal Entry</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128197;</span> Past Entries</div>
+      <div id="pastEntries"><p style="color: var(--text-dim); font-size: 13px;">Your journey starts today. No past entries yet.</p></div>
+    </div>
+  </div>
+
+  <!-- ========== TALK TO KIKOU (Voice Assistant) ========== -->
+  <div class="page" id="page-chat">
+
+    <!-- Voice Assistant Mode (default) -->
+    <div id="voiceAssistantView">
+      <div style="text-align:center; padding-top: 20px;">
+        <div style="font-size: 14px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">Your Future Self</div>
+        <div style="font-size: 42px; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px;">KIKOU</div>
+        <div style="font-size: 12px; color: var(--text-dim);">Tap the mic and talk. I'm listening.</div>
+      </div>
+
+      <!-- Voice Orb -->
+      <div style="display: flex; justify-content: center; align-items: center; padding: 40px 0;">
+        <div id="voiceOrb" class="voice-orb" onclick="toggleChatMic()">
+          <div class="voice-orb-inner" id="voiceOrbInner">
+            <span class="voice-orb-icon" id="voiceOrbIcon">&#127908;</span>
+          </div>
+          <div class="voice-orb-ring ring1"></div>
+          <div class="voice-orb-ring ring2"></div>
+          <div class="voice-orb-ring ring3"></div>
+        </div>
+      </div>
+
+      <!-- Voice Status Text -->
+      <div style="text-align: center; min-height: 60px;">
+        <div id="voiceAssistantStatus" style="font-size: 14px; color: var(--text-dim); font-weight: 600;">Tap to speak</div>
+        <div id="voiceLiveText" style="font-size: 16px; color: var(--text-bright); font-weight: 700; margin-top: 8px; min-height: 24px;"></div>
+      </div>
+
+      <!-- Kikou Response Area -->
+      <div id="kikouResponseArea" class="card" style="margin-top: 20px; display: none;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; color: #000;">K</div>
+          <div style="font-weight: 800; font-size: 14px; color: var(--accent);">KIKOU</div>
+          <button class="speak-btn" id="replayBtn" onclick="replayLastResponse()" title="Replay" style="margin-left: auto;">&#128266; Replay</button>
+        </div>
+        <div id="kikouResponseText" style="font-size: 15px; line-height: 1.7; color: var(--text-bright);"></div>
+      </div>
+
+      <!-- Conversation History (collapsed) -->
+      <div id="voiceHistory" style="margin-top: 16px;"></div>
+
+      <!-- Switch to text chat -->
+      <div style="text-align: center; margin-top: 20px;">
+        <button class="btn btn-ghost" onclick="switchToTextChat()" style="font-size: 12px;">&#9998; Switch to text chat</button>
+      </div>
+    </div>
+
+    <!-- Text Chat Mode (hidden by default) -->
+    <div id="textChatView" style="display: none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <button class="btn btn-ghost" onclick="switchToVoiceAssistant()" style="font-size: 12px;">&#127908; Switch to voice</button>
+        <div class="voice-toggle" id="voiceToggle" onclick="toggleVoiceMode()">
+          <div class="voice-indicator"></div>
+          <span id="voiceToggleLabel">Voice Off</span>
+        </div>
+      </div>
+      <div class="chat-container">
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-msg kikou">
+            <div class="sender">KIKOU (Future You) <button class="speak-btn" onclick="speakText(this.parentElement.nextSibling.textContent, 'en')" title="Listen">&#128266;</button></div>
+            <span>Hey Rachit. I'm you, but the version that already made it. Ask me anything. I'll give you the truth, the hype, and the plan.</span>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <button class="mic-btn" id="chatMicBtn" onclick="toggleChatMic()" title="Tap to speak">&#127908;</button>
+          <input class="chat-input" id="chatInput" placeholder="Type or tap the mic..." onkeydown="if(event.key==='Enter') sendChat()">
+          <button class="chat-send" onclick="sendChat()">SEND</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========== SETTINGS ========== -->
+  <div class="page" id="page-settings">
+    <div class="quote-box">
+      <div class="quote-text">Make Kikou yours. Toggle what matters, hide what doesn't.</div>
+      <div class="quote-sub">SETTINGS & CUSTOMIZATION</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#127912;</span> Theme</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">Pick the vibe that matches your energy.</p>
+      <div class="theme-grid" id="themeGrid"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#129504;</span> AI Brain (Connect LLM)</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">Connect a free AI so Kikou gives real, intelligent answers to YOUR questions — like ChatGPT but as your future self.</p>
+      <div class="input-group">
+        <div class="input-label">AI Provider</div>
+        <select class="input-field" id="settingsProvider" onchange="saveSettings()">
+          <option value="groq">Groq (FREE - Recommended)</option>
+          <option value="openai">OpenAI (ChatGPT)</option>
+          <option value="offline">Offline (Built-in responses only)</option>
+        </select>
+      </div>
+      <div class="input-group" id="apiKeyGroup">
+        <div class="input-label">API Key</div>
+        <input class="input-field" id="settingsApiKey" type="password" placeholder="Paste your API key here" oninput="saveSettings()">
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: 6px;" id="apiKeyHelp">
+          Get a FREE Groq key: go to <strong>console.groq.com</strong> → sign up → API Keys → Create. It's 100% free.
+        </div>
+      </div>
+      <div id="aiStatus" style="margin-top: 8px;"></div>
+      <button class="btn btn-secondary" style="margin-top: 8px;" onclick="testAIConnection()">Test Connection</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#9881;&#65039;</span> Modules (Show / Hide)</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">Toggle the modules you want. Hidden modules disappear from the navigation.</p>
+      <div id="moduleToggles"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128276;</span> Morning Notifications</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">Get a mindset quote notification every morning when you open your phone.</p>
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0;">
+        <span style="font-weight: 600; font-size: 14px;">Enable morning notifications</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingsNotifications" onchange="toggleNotifications()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div id="notifStatus" style="font-size: 12px; color: var(--text-dim); margin-top: 4px;"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128241;</span> Home Screen Widget</div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">Add a journal shortcut widget to your Android home screen.</p>
+      <div style="padding: 14px; background: rgba(245,158,11,0.05); border-radius: 10px; border-left: 3px solid var(--accent); font-size: 13px; line-height: 1.6;">
+        <strong>How to add the widget:</strong><br>
+        1. Install KIKOU as an app (Add to Home Screen)<br>
+        2. Long-press your home screen → Widgets<br>
+        3. Find "KIKOU" → drag the widget to your home screen<br>
+        4. The widget shows today's intention and quick journal access
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128465;&#65039;</span> Data</div>
+      <button class="btn btn-ghost" onclick="if(confirm('Reset ALL data? This cannot be undone.')) { localStorage.clear(); location.reload(); }" style="color: var(--danger);">Reset All Data</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Morning Notification Popup -->
+<div id="morningPopup" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); z-index:500; display:none; align-items:center; justify-content:center; padding:24px; backdrop-filter:blur(10px);">
+  <div style="max-width:400px; width:100%; text-align:center; animation: fadeIn 0.6s ease;">
+    <div style="font-size:14px; color:var(--accent); letter-spacing:3px; text-transform:uppercase; margin-bottom:8px;">Good Morning, Rachit</div>
+    <div id="morningPopupQuote" style="font-size:22px; font-weight:800; color:var(--text-bright); line-height:1.5; margin:20px 0;"></div>
+    <div style="font-size:13px; color:var(--text-dim); margin-bottom:28px;">- KIKOU, your future self</div>
+    <button onclick="closeMorningPopup()" style="padding:14px 40px; background:linear-gradient(135deg, var(--accent), #d97706); border:none; border-radius:14px; color:#000; font-size:16px; font-weight:800; cursor:pointer; letter-spacing:1px;">LET'S GO</button>
+  </div>
+</div>
+
+<!-- Floating Mic Button (visible on all pages) -->
+<button class="floating-mic" id="floatingMic" onclick="toggleGlobalMic()" title="Talk to Kikou">&#127908;</button>
+<div class="voice-status" id="voiceStatus">&#127908; Listening...</div>
 
 <script>
-// ── Helpers ────────────────────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
-const fmt = (v, d=0) => {
-  if (v == null) return '—';
-  const s = v < 0 ? '-' : '';
-  return s + '$' + Math.abs(v).toLocaleString('en-US', {minimumFractionDigits:d, maximumFractionDigits:d});
-};
-const fmtPct = v => (v >= 0 ? '+' : '') + (v*100).toFixed(2) + '%';
-const color = v => v >= 0 ? 'var(--green)' : 'var(--red)';
-const cls   = v => v >= 0 ? 'pos' : 'neg';
+// ===========================
+// KIKOU ENGINE - Core System
+// ===========================
 
-// ── Chart defaults ──────────────────────────────────────────────────────────
-Chart.defaults.color = '#8b949e';
-Chart.defaults.borderColor = '#21262d';
-Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+const STORAGE_KEY = 'kikou_data';
 
-// ── Main render ─────────────────────────────────────────────────────────────
-async function init() {
-  let data;
+function loadData() {
   try {
-    const res = await fetch('data.json?t=' + Date.now());
-    if (!res.ok) throw new Error(res.status);
-    data = await res.json();
-  } catch(e) {
-    $('loader').innerHTML = `<p style="color:var(--red)">Failed to load data.json: ${e.message}</p>`;
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || getDefaultData();
+  } catch { return getDefaultData(); }
+}
+
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function getDefaultData() {
+  return {
+    xp: 0,
+    level: 1,
+    streak: 0,
+    lastActiveDate: null,
+    habits: {},
+    missions: {},
+    morningDone: {},
+    contacts: [],
+    journalEntries: [],
+    frenchPractices: [],
+    careerTasks: {},
+    socialChallenges: {},
+    intentions: []
+  };
+}
+
+let data = loadData();
+
+// ===========================
+// TIME & STREAK
+// ===========================
+
+function updateTime() {
+  const now = new Date();
+  const opts = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+  const day = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  document.getElementById('headerTime').textContent = `${day} | ${now.toLocaleTimeString('en-US', opts)}`;
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+function checkStreak() {
+  const today = new Date().toDateString();
+  if (data.lastActiveDate === today) return;
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  if (data.lastActiveDate === yesterday) {
+    data.streak++;
+  } else if (data.lastActiveDate !== today) {
+    data.streak = 1;
+  }
+  data.lastActiveDate = today;
+  saveData(data);
+}
+
+function addXP(amount) {
+  data.xp += amount;
+  const xpForLevel = data.level * 100;
+  while (data.xp >= xpForLevel) {
+    data.xp -= xpForLevel;
+    data.level++;
+  }
+  saveData(data);
+  updateStats();
+}
+
+function updateStats() {
+  document.getElementById('statStreak').textContent = data.streak;
+  document.getElementById('statXP').textContent = data.xp;
+  document.getElementById('statLevel').textContent = data.level;
+  const xpForLevel = data.level * 100;
+  const pct = Math.min((data.xp / xpForLevel) * 100, 100);
+  document.getElementById('xpBar').style.width = pct + '%';
+  document.getElementById('xpProgress').textContent = `${data.xp}/${xpForLevel} XP`;
+}
+
+// ===========================
+// NAVIGATION
+// ===========================
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function enterApp() {
+  document.getElementById('splash').classList.add('hidden');
+  checkStreak();
+  updateStats();
+}
+
+// ===========================
+// AFFIRMATIONS
+// ===========================
+
+const affirmations = [
+  "GOD HAS GIVEN YOU THIS OPPORTUNITY FOR A REASON. DON'T WASTE IT.",
+  "YOU ARE NOT BORING. YOU ARE AN ENFP POWERHOUSE. OWN YOUR ENERGY.",
+  "MCKINSEDY, BCG, BAIN - ONE OF THEM IS WAITING FOR YOU. PREPARE.",
+  "EVERY PERSON YOU MEET IS A DOOR. OPEN ALL OF THEM.",
+  "TU VIS EN FRANCE. PARLE FRANCAIS. SOIS KIKOU.",
+  "PEOPLE LEAVE? BUILD A TABLE SO BIG THEY BEG TO COME BACK.",
+  "'I DON'T KNOW' IS DEAD. 'I'LL FIGURE IT OUT' IS YOUR NEW LANGUAGE.",
+  "YOU ARE 28. THIS IS YOUR PRIME. EVERY DAY COUNTS.",
+  "THE AUDENCIA MBA IS YOUR LAUNCHPAD. USE EVERY SECOND OF IT.",
+  "FUTURE RACHIT IS RICH, CONNECTED, MULTILINGUAL. START BEING HIM NOW.",
+  "STOP PUSHING PEOPLE AWAY. PULL THEM IN WITH YOUR ENERGY.",
+  "YOU HAVE MANY NAMES. KIKOU IS THE ONE THAT WINS.",
+  "YOUR NETWORK IS YOUR NET WORTH. BUILD IT EVERY SINGLE DAY.",
+  "CONFIDENCE ISN'T BORN. IT'S BUILT. REP BY REP. DAY BY DAY.",
+  "YOU DON'T NEED ANYONE TO VALIDATE YOU. YOU VALIDATE YOURSELF."
+];
+
+let affIdx = 0;
+function nextAffirmation() {
+  affIdx = (affIdx + 1) % affirmations.length;
+  document.getElementById('affirmationBanner').textContent = affirmations[affIdx];
+}
+
+// ===========================
+// DAILY MISSIONS
+// ===========================
+
+function renderMissions() {
+  const today = new Date().toDateString();
+  if (!data.missions[today]) {
+    data.missions[today] = [
+      { text: 'Complete morning routine', done: false },
+      { text: 'Talk to 3 new people', done: false },
+      { text: 'Learn 5 French words', done: false },
+      { text: 'Practice 1 case interview question', done: false },
+      { text: 'Write in journal tonight', done: false },
+      { text: 'No banned words today', done: false }
+    ];
+    saveData(data);
+  }
+  const el = document.getElementById('dailyMissions');
+  el.innerHTML = data.missions[today].map((m, i) => `
+    <div class="checklist-item">
+      <div class="check-circle ${m.done ? 'done' : ''}" onclick="toggleMission(${i})">${m.done ? '&#10003;' : ''}</div>
+      <span class="checklist-text ${m.done ? 'done' : ''}">${m.text}</span>
+    </div>
+  `).join('');
+}
+
+function toggleMission(i) {
+  const today = new Date().toDateString();
+  data.missions[today][i].done = !data.missions[today][i].done;
+  if (data.missions[today][i].done) addXP(15);
+  saveData(data);
+  renderMissions();
+}
+
+// ===========================
+// HABITS
+// ===========================
+
+const habits = [
+  { name: 'Wake up before 7:30', key: 'wake' },
+  { name: 'Exercise / Walk 30 min', key: 'exercise' },
+  { name: 'French practice', key: 'french' },
+  { name: 'Read 20 pages', key: 'read' },
+  { name: 'No "I don\'t know"', key: 'noIDK' },
+  { name: 'Talk to someone new', key: 'social' },
+  { name: 'Meditate 5 min', key: 'meditate' }
+];
+
+function renderHabits() {
+  const today = new Date().toDateString();
+  if (!data.habits[today]) { data.habits[today] = {}; saveData(data); }
+  const el = document.getElementById('habitTracker');
+  el.innerHTML = habits.map(h => {
+    const done = data.habits[today][h.key] || false;
+    const streak = getHabitStreak(h.key);
+    return `
+      <div class="habit-row">
+        <span class="habit-name">${h.name}</span>
+        <span class="habit-streak">${streak > 0 ? streak + ' day streak' : ''}</span>
+        <div class="habit-check ${done ? 'done' : ''}" onclick="toggleHabit('${h.key}')">
+          ${done ? '&#10003;' : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleHabit(key) {
+  const today = new Date().toDateString();
+  if (!data.habits[today]) data.habits[today] = {};
+  data.habits[today][key] = !data.habits[today][key];
+  if (data.habits[today][key]) addXP(10);
+  saveData(data);
+  renderHabits();
+}
+
+function getHabitStreak(key) {
+  let streak = 0;
+  let d = new Date();
+  for (let i = 0; i < 365; i++) {
+    const ds = d.toDateString();
+    if (data.habits[ds] && data.habits[ds][key]) { streak++; }
+    else if (i > 0) break;
+    d = new Date(d.getTime() - 86400000);
+  }
+  return streak;
+}
+
+// ===========================
+// GROWTH AREAS
+// ===========================
+
+function renderGrowthAreas() {
+  const areas = [
+    { name: 'Social Confidence', pct: 35, color: 'var(--accent)' },
+    { name: 'French Language', pct: 50, color: 'var(--accent2)' },
+    { name: 'Career Readiness', pct: 30, color: 'var(--accent3)' },
+    { name: 'Networking', pct: 25, color: '#ec4899' },
+    { name: 'Mindset / Self-talk', pct: 40, color: '#06b6d4' }
+  ];
+  document.getElementById('growthAreas').innerHTML = areas.map(a => `
+    <div style="margin-bottom: 14px;">
+      <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+        <span style="font-weight: 600;">${a.name}</span>
+        <span style="color: var(--text-dim);">${a.pct}%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" style="width: ${a.pct}%; background: ${a.color};"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===========================
+// MORNING ROUTINE
+// ===========================
+
+const morningQuotes = [
+  "Rise and build, Rachit. Today is another chance to become Kikou.",
+  "The person you will be in 5 years starts with what you do THIS morning.",
+  "Your future self is watching. Make them proud before breakfast.",
+  "Every morning is a new stage. Walk on it like you own it.",
+  "Tu es en France. Tu es vivant. Tu es Kikou. Bonjour, champion."
+];
+
+function renderMorningRoutine() {
+  document.getElementById('morningQuote').textContent = morningQuotes[Math.floor(Math.random() * morningQuotes.length)];
+  const today = new Date().toDateString();
+  if (!data.morningDone[today]) { data.morningDone[today] = {}; saveData(data); }
+
+  const steps = [
+    { key: 'water', text: 'Drink a glass of water immediately' },
+    { key: 'affirmation', text: 'Read your identity statements out loud (Mindset tab)' },
+    { key: 'stretch', text: '5 minutes stretching or exercise' },
+    { key: 'french5', text: 'Learn your 5 French words of the day' },
+    { key: 'intention', text: 'Set your daily intention below' },
+    { key: 'outfit', text: 'Dress sharp. Look like you already have the job.' },
+    { key: 'smile', text: 'Look in the mirror and say: "I am Kikou. Today I win."' }
+  ];
+
+  document.getElementById('morningChecklist').innerHTML = steps.map(s => {
+    const done = data.morningDone[today][s.key] || false;
+    return `
+      <div class="checklist-item">
+        <div class="check-circle ${done ? 'done' : ''}" onclick="toggleMorning('${s.key}')">
+          ${done ? '&#10003;' : ''}
+        </div>
+        <span class="checklist-text ${done ? 'done' : ''}">${s.text}</span>
+      </div>
+    `;
+  }).join('');
+
+  renderMorningFrenchWord();
+}
+
+function toggleMorning(key) {
+  const today = new Date().toDateString();
+  data.morningDone[today][key] = !data.morningDone[today][key];
+  if (data.morningDone[today][key]) addXP(10);
+  saveData(data);
+  renderMorningRoutine();
+}
+
+function saveIntention() {
+  const val = document.getElementById('dailyIntention').value.trim();
+  if (!val) return;
+  checkBannedWords(val);
+  data.intentions.push({ date: new Date().toISOString(), text: val });
+  saveData(data);
+  addXP(15);
+  document.getElementById('dailyIntention').value = '';
+  alert('Intention locked in! Now go execute.');
+}
+
+// ===========================
+// FRENCH MODULE
+// ===========================
+
+const frenchVocabSets = [
+  [
+    { word: 'Cependant', meaning: 'However / Nevertheless', example: 'Cependant, il faut noter que le march\u00e9 a chang\u00e9.' },
+    { word: 'Atteindre', meaning: 'To reach / To achieve', example: "J'aimerais atteindre mes objectifs cette ann\u00e9e." },
+    { word: 'D\u00e9marche', meaning: 'Approach / Process', example: 'Quelle est votre d\u00e9marche pour ce projet ?' },
+    { word: '\u00c9panouissement', meaning: 'Fulfillment / Blossoming', example: "L'\u00e9panouissement personnel est tr\u00e8s important." },
+    { word: 'R\u00e9seau', meaning: 'Network', example: 'Il faut d\u00e9velopper son r\u00e9seau professionnel.' }
+  ],
+  [
+    { word: 'Enjeu', meaning: 'Stake / Issue / Challenge', example: 'Les enjeux du march\u00e9 sont complexes.' },
+    { word: 'Rentable', meaning: 'Profitable', example: 'Ce projet est tr\u00e8s rentable.' },
+    { word: 'Prise de d\u00e9cision', meaning: 'Decision-making', example: 'La prise de d\u00e9cision est cruciale en management.' },
+    { word: 'Aboutir', meaning: 'To lead to / To result in', example: 'Ce travail va aboutir \u00e0 de bons r\u00e9sultats.' },
+    { word: 'Valoriser', meaning: 'To value / To enhance', example: 'Il faut valoriser vos comp\u00e9tences.' }
+  ],
+  [
+    { word: 'Pertinent', meaning: 'Relevant / Pertinent', example: 'Votre analyse est tr\u00e8s pertinente.' },
+    { word: 'Mettre en \u0153uvre', meaning: 'To implement', example: 'Nous allons mettre en \u0153uvre cette strat\u00e9gie.' },
+    { word: 'Concurrentiel', meaning: 'Competitive', example: "L'avantage concurrentiel est essentiel." },
+    { word: 'Encadrer', meaning: 'To supervise / To frame', example: 'Elle sait encadrer son \u00e9quipe efficacement.' },
+    { word: 'Bienveillant', meaning: 'Kind / Benevolent', example: 'Soyez bienveillant avec les autres.' }
+  ],
+  [
+    { word: 'Notamment', meaning: 'In particular / Notably', example: 'Notamment dans le secteur technologique.' },
+    { word: 'Croissance', meaning: 'Growth', example: 'La croissance \u00e9conomique est forte.' },
+    { word: 'Partie prenante', meaning: 'Stakeholder', example: 'Les parties prenantes doivent \u00eatre consult\u00e9es.' },
+    { word: 'Fid\u00e9liser', meaning: 'To build loyalty / To retain', example: 'Comment fid\u00e9liser les clients ?' },
+    { word: 'Audacieux', meaning: 'Bold / Daring', example: 'Soyez audacieux dans vos d\u00e9cisions.' }
+  ]
+];
+
+const businessPhrases = [
+  { fr: "Je suis convaincu que cette strat\u00e9gie va fonctionner.", en: "I am convinced that this strategy will work." },
+  { fr: "Pourriez-vous me donner plus de d\u00e9tails ?", en: "Could you give me more details?" },
+  { fr: "Je propose une approche diff\u00e9rente.", en: "I suggest a different approach." },
+  { fr: "Les r\u00e9sultats montrent une tendance positive.", en: "The results show a positive trend." },
+  { fr: "Quel est le retour sur investissement ?", en: "What is the return on investment?" },
+  { fr: "Il faut prioriser les actions cl\u00e9s.", en: "We need to prioritize key actions." },
+  { fr: "Je suis disponible pour en discuter.", en: "I am available to discuss this." },
+  { fr: "Quels sont les risques associ\u00e9s ?", en: "What are the associated risks?" }
+];
+
+function renderFrench() {
+  const dayIdx = new Date().getDay() % frenchVocabSets.length;
+  const words = frenchVocabSets[dayIdx];
+  document.getElementById('frenchVocab').innerHTML = words.map(w => `
+    <div class="french-word">
+      <div class="word">${w.word} <button class="french-listen-btn" onclick="speakFrench('${w.word.replace(/'/g, "\\'")}')">&#128266; Listen</button></div>
+      <div class="meaning">${w.meaning}</div>
+      <div class="example">${w.example} <button class="french-listen-btn" onclick="speakFrench('${w.example.replace(/'/g, "\\'")}')">&#128266; Hear it</button></div>
+    </div>
+  `).join('');
+
+  const shuffled = [...businessPhrases].sort(() => 0.5 - Math.random()).slice(0, 4);
+  document.getElementById('businessFrench').innerHTML = shuffled.map(p => `
+    <div class="french-word">
+      <div class="word" style="font-size: 16px;">${p.fr} <button class="french-listen-btn" onclick="speakFrench('${p.fr.replace(/'/g, "\\'")}')">&#128266; Listen</button></div>
+      <div class="meaning">${p.en}</div>
+    </div>
+  `).join('');
+}
+
+function renderMorningFrenchWord() {
+  const dayIdx = new Date().getDay() % frenchVocabSets.length;
+  const word = frenchVocabSets[dayIdx][0];
+  document.getElementById('morningFrenchWord').innerHTML = `
+    <div class="french-word">
+      <div class="word">${word.word} <button class="french-listen-btn" onclick="speakFrench('${word.word.replace(/'/g, "\\'")}')">&#128266; Listen</button></div>
+      <div class="meaning">${word.meaning}</div>
+      <div class="example">${word.example} <button class="french-listen-btn" onclick="speakFrench('${word.example.replace(/'/g, "\\'")}')">&#128266; Hear it</button></div>
+    </div>
+  `;
+}
+
+function saveFrenchPractice() {
+  const text = document.getElementById('frenchPractice').value.trim();
+  if (!text) return;
+  data.frenchPractices.push({ date: new Date().toISOString(), text });
+  saveData(data);
+  addXP(20);
+  document.getElementById('frenchPractice').value = '';
+  alert('French practice saved! +20 XP. Bravo !');
+}
+
+// ===========================
+// CAREER MODULE
+// ===========================
+
+const caseTypes = [
+  {
+    title: 'Market Entry - European Tech Startup',
+    prompt: 'A German tech startup wants to enter the French market with their B2B SaaS product. They have 2M EUR in funding. How would you approach this?',
+    framework: 'Market sizing, competitive landscape, go-to-market strategy, pricing, partnerships'
+  },
+  {
+    title: 'Profitability - Luxury Retail Chain',
+    prompt: 'A French luxury retailer has seen profits decline 15% YoY despite stable revenue. Diagnose the problem and recommend solutions.',
+    framework: 'Revenue vs cost analysis, margin breakdown, operational efficiency, brand positioning'
+  },
+  {
+    title: 'Growth Strategy - Food Delivery',
+    prompt: 'A food delivery platform in Paris wants to 3x its user base in 18 months. What strategy would you recommend?',
+    framework: 'Customer acquisition, retention, unit economics, competitive advantage, scaling ops'
+  },
+  {
+    title: 'M&A - Pharmaceutical Company',
+    prompt: 'A mid-size pharma company is considering acquiring a biotech startup. Evaluate whether they should proceed.',
+    framework: 'Strategic fit, valuation, synergies, integration risks, regulatory considerations'
+  },
+  {
+    title: 'Digital Transformation - Traditional Bank',
+    prompt: 'A 100-year-old European bank is losing customers to neobanks. Design their digital transformation strategy.',
+    framework: 'Customer journey, technology stack, change management, competitive response, timeline'
+  }
+];
+
+function renderCareer() {
+  const today = new Date().toDateString();
+  if (!data.careerTasks[today]) {
+    data.careerTasks[today] = [
+      { text: 'Research one target company - read recent news/case studies', done: false },
+      { text: 'Practice one case framework (profitability, market entry, M&A)', done: false },
+      { text: 'Connect with one person on LinkedIn in consulting', done: false },
+      { text: 'Review your CV for 5 minutes - find one thing to improve', done: false },
+      { text: 'Read one article about strategy consulting trends', done: false }
+    ];
+    saveData(data);
+  }
+
+  document.getElementById('careerTasks').innerHTML = data.careerTasks[today].map((t, i) => `
+    <div class="checklist-item">
+      <div class="check-circle ${t.done ? 'done' : ''}" onclick="toggleCareerTask(${i})">
+        ${t.done ? '&#10003;' : ''}
+      </div>
+      <span class="checklist-text ${t.done ? 'done' : ''}">${t.text}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('caseTracker').innerHTML = `
+    <div class="stat-box" style="margin-bottom: 12px;">
+      <div class="stat-number" style="font-size: 24px;" id="caseCount">${data.casesStudied || 0}</div>
+      <div class="stat-label">Cases Studied</div>
+    </div>
+  `;
+}
+
+function toggleCareerTask(i) {
+  const today = new Date().toDateString();
+  data.careerTasks[today][i].done = !data.careerTasks[today][i].done;
+  if (data.careerTasks[today][i].done) addXP(15);
+  saveData(data);
+  renderCareer();
+}
+
+function generateCase() {
+  const c = caseTypes[Math.floor(Math.random() * caseTypes.length)];
+  document.getElementById('caseContent').innerHTML = `
+    <div class="card" style="background: rgba(245,158,11,0.05); border-color: rgba(245,158,11,0.2);">
+      <div style="font-weight: 800; font-size: 16px; color: var(--accent); margin-bottom: 8px;">${c.title}</div>
+      <p style="font-size: 14px; line-height: 1.6; margin-bottom: 12px;">${c.prompt}</p>
+      <p style="font-size: 12px; color: var(--text-dim);"><strong>Framework to use:</strong> ${c.framework}</p>
+      <button class="btn btn-ghost" style="margin-top: 12px;" onclick="markCaseStudied()">Mark as practiced (+25 XP)</button>
+    </div>
+  `;
+}
+
+function markCaseStudied() {
+  data.casesStudied = (data.casesStudied || 0) + 1;
+  addXP(25);
+  saveData(data);
+  renderCareer();
+  alert('Case practiced! Keep grinding. You\'re getting closer to that offer.');
+}
+
+// ===========================
+// SOCIAL MODULE
+// ===========================
+
+const socialChallengesPool = [
+  'Compliment someone genuinely today',
+  'Start a conversation with someone you\'ve never spoken to',
+  'Ask a classmate about their weekend plans',
+  'Invite someone for coffee after class',
+  'Send a LinkedIn connection request with a personal note',
+  'Share a funny story with a group',
+  'Ask someone about their culture/country',
+  'Organize a study group or lunch plan',
+  'Give someone your full attention for 5 minutes - no phone',
+  'Ask someone for advice on something (people love giving advice)',
+  'Text 3 people you haven\'t spoken to in a week',
+  'Sit next to someone new in class today'
+];
+
+const convStarterPool = [
+  '"What\'s the most interesting thing that happened to you this week?"',
+  '"If you could live anywhere in Europe, where would it be and why?"',
+  '"What did you do before the MBA? I\'m curious about your background."',
+  '"Have you found any amazing restaurants here? I need recommendations."',
+  '"What\'s your take on [recent class topic]? I found it fascinating."',
+  '"Are you planning any trips? I love hearing about travel plans."',
+  '"What\'s the best advice someone has given you about business?"',
+  '"If you weren\'t doing an MBA, what would you be doing right now?"',
+  '"What apps or tools are you using that you can\'t live without?"',
+  '"Do you have a side project or passion outside of school?"',
+  '"What language would you love to learn and why?"',
+  '"What\'s the biggest culture shock you\'ve experienced here?"'
+];
+
+function renderSocial() {
+  const today = new Date().toDateString();
+  if (!data.socialChallenges[today]) {
+    const shuffled = [...socialChallengesPool].sort(() => 0.5 - Math.random()).slice(0, 3);
+    data.socialChallenges[today] = shuffled.map(s => ({ text: s, done: false }));
+    saveData(data);
+  }
+
+  document.getElementById('socialChallenges').innerHTML = data.socialChallenges[today].map((c, i) => `
+    <div class="checklist-item">
+      <div class="check-circle ${c.done ? 'done' : ''}" onclick="toggleSocialChallenge(${i})">
+        ${c.done ? '&#10003;' : ''}
+      </div>
+      <span class="checklist-text ${c.done ? 'done' : ''}">${c.text}</span>
+    </div>
+  `).join('');
+
+  renderConvStarters();
+  renderContacts();
+}
+
+function toggleSocialChallenge(i) {
+  const today = new Date().toDateString();
+  data.socialChallenges[today][i].done = !data.socialChallenges[today][i].done;
+  if (data.socialChallenges[today][i].done) addXP(20);
+  saveData(data);
+  renderSocial();
+}
+
+function renderConvStarters() {
+  const shuffled = [...convStarterPool].sort(() => 0.5 - Math.random()).slice(0, 4);
+  document.getElementById('convStarters').innerHTML = shuffled.map(s => `
+    <div style="padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 8px; font-size: 14px; border-left: 3px solid var(--accent);">
+      ${s}
+    </div>
+  `).join('');
+}
+
+function refreshStarters() { renderConvStarters(); }
+
+function addContact() {
+  const name = document.getElementById('newContactName').value.trim();
+  const context = document.getElementById('newContactContext').value.trim();
+  if (!name) return;
+  data.contacts.push({ name, context, date: new Date().toISOString() });
+  saveData(data);
+  addXP(15);
+  document.getElementById('newContactName').value = '';
+  document.getElementById('newContactContext').value = '';
+  renderContacts();
+}
+
+function renderContacts() {
+  const el = document.getElementById('networkLog');
+  if (data.contacts.length === 0) {
+    el.innerHTML = '<p style="color: var(--text-dim); font-size: 13px;">No connections logged yet. Start building your empire.</p>';
+    return;
+  }
+  el.innerHTML = data.contacts.slice().reverse().slice(0, 10).map(c => `
+    <div class="contact-card">
+      <div class="contact-avatar">${c.name.charAt(0).toUpperCase()}</div>
+      <div class="contact-info">
+        <div class="contact-name">${c.name}</div>
+        <div class="contact-detail">${c.context || 'No context added'}</div>
+        <div class="contact-detail">${new Date(c.date).toLocaleDateString()}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===========================
+// MINDSET MODULE
+// ===========================
+
+function renderMindset() {
+  const statements = [
+    "I am Kikou. I am magnetic. People are drawn to my energy.",
+    "I am a future top consultant. Every case I study, every connection I make, builds toward that.",
+    "I speak French. I live in France. I am becoming fluent. No excuses.",
+    "I don't say 'I don't know.' I say 'Let me figure it out.'",
+    "I am not boring. I am an ENFP with stories, humor, and genuine curiosity.",
+    "People who leave were not meant for my journey. I attract the right ones.",
+    "My MBA at Audencia is a springboard. I will launch higher than anyone expects.",
+    "I am surrounded by abundance - women, friends, opportunities. I just need to show up.",
+    "I take time to understand, and that's a strength. Depth beats speed.",
+    "I am building a life so incredible that my past self wouldn't believe it."
+  ];
+
+  document.getElementById('identityStatements').innerHTML = statements.map((s, i) => `
+    <div style="padding: 14px 16px; background: rgba(245,158,11,${0.03 + i * 0.008}); border-radius: 10px; margin-bottom: 8px; font-size: 14px; font-weight: 600; border-left: 3px solid var(--accent);">
+      ${s}
+    </div>
+  `).join('');
+
+  const reframes = [
+    { old: '"I get attached easily"', new_: 'You love deeply. That\'s rare. Channel it - don\'t fight it. Choose people who deserve it.' },
+    { old: '"People leave me"', new_: 'People flow in and out of everyone\'s life. You\'re building a door so wide, the RIGHT people walk in.' },
+    { old: '"I push people away"', new_: 'You\'re protecting yourself. But Kikou doesn\'t need walls. Kikou is the castle.' },
+    { old: '"I get boring"', new_: 'You\'re an ENFP. You\'re literally one of the most interesting personality types. You just forgot. Kikou remembers.' },
+    { old: '"I forget things"', new_: 'Write everything down. Systems beat memory. Build systems, not excuses.' },
+    { old: '"I take time to understand"', new_: 'You understand DEEPLY. Fast thinkers forget fast. You remember because you process fully.' }
+  ];
+
+  document.getElementById('reframes').innerHTML = reframes.map(r => `
+    <div style="padding: 14px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 10px;">
+      <div style="font-size: 13px; color: var(--danger); margin-bottom: 6px;"><s>${r.old}</s></div>
+      <div style="font-size: 14px; color: var(--accent3); font-weight: 600;">${r.new_}</div>
+    </div>
+  `).join('');
+
+  const patterns = [
+    { trigger: 'Feeling like isolating', action: 'TEXT 1 PERSON immediately. Just "Hey, what are you up to?" That\'s it.' },
+    { trigger: 'About to say "I don\'t know"', action: 'STOP. Say "Let me think about it" or "Here\'s my take..." Give SOMETHING.' },
+    { trigger: 'Feeling boring / low energy', action: 'Stand up. Walk for 5 minutes. Put on your favorite song. Energy is a CHOICE.' },
+    { trigger: 'Comparing yourself to others', action: 'Write down 3 things YOU have that they don\'t. Your story is unique.' },
+    { trigger: 'Overthinking a rejection', action: 'Say out loud: "Not for me. NEXT." Then do something for yourself immediately.' },
+    { trigger: 'Avoiding French', action: 'Open your mouth and say ONE sentence in French. Just one. That breaks the dam.' }
+  ];
+
+  document.getElementById('patternBreakers').innerHTML = patterns.map(p => `
+    <div style="padding: 14px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 10px; display: flex; gap: 16px; align-items: flex-start;">
+      <div style="min-width: 80px;"><span class="tag tag-red">${p.trigger}</span></div>
+      <div style="font-size: 14px; font-weight: 600; color: var(--accent3);">${p.action}</div>
+    </div>
+  `).join('');
+}
+
+// ===========================
+// JOURNAL
+// ===========================
+
+function saveJournal() {
+  const wins = document.getElementById('journalWins').value.trim();
+  const improve = document.getElementById('journalImprove').value.trim();
+  const connect = document.getElementById('journalConnect').value.trim();
+  const energy = document.getElementById('journalEnergy').value;
+  if (!wins) { alert('Write at least your 3 wins!'); return; }
+  data.journalEntries.push({
+    date: new Date().toISOString(),
+    wins, improve, connect, energy: parseInt(energy) || 0
+  });
+  saveData(data);
+  addXP(30);
+  document.getElementById('journalWins').value = '';
+  document.getElementById('journalImprove').value = '';
+  document.getElementById('journalConnect').value = '';
+  document.getElementById('journalEnergy').value = '';
+  renderJournal();
+  alert('Journal saved! +30 XP. You\'re documenting your rise.');
+}
+
+function renderJournal() {
+  const el = document.getElementById('pastEntries');
+  if (data.journalEntries.length === 0) {
+    el.innerHTML = '<p style="color: var(--text-dim); font-size: 13px;">Your journey starts today. No past entries yet.</p>';
+    return;
+  }
+  el.innerHTML = data.journalEntries.slice().reverse().slice(0, 7).map(e => `
+    <div class="card" style="background: rgba(255,255,255,0.02);">
+      <div style="font-size: 12px; color: var(--accent); font-weight: 700; margin-bottom: 8px;">
+        ${new Date(e.date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+        ${e.energy ? `| Energy: ${'&#9889;'.repeat(Math.min(e.energy, 10))}` : ''}
+      </div>
+      <div style="font-size: 13px; margin-bottom: 6px;"><strong>Wins:</strong> ${e.wins}</div>
+      ${e.improve ? `<div style="font-size: 13px; margin-bottom: 6px;"><strong>Improve:</strong> ${e.improve}</div>` : ''}
+      ${e.connect ? `<div style="font-size: 13px;"><strong>Connected with:</strong> ${e.connect}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ===========================
+// CHAT WITH KIKOU
+// ===========================
+
+const kikouResponses = {
+  lonely: [
+    "Rachit, listen. You're in a room full of MBA students from around the world. These are YOUR people. Walk up to literally ANYONE and say 'Hey, what did you think of today\'s class?' That's it. That's the door opener. You're an ENFP - once you start talking, you LIGHT UP. The hard part is just starting. So start. RIGHT NOW.",
+    "Bro, you're not alone. You're just not INITIATING enough. People aren't avoiding you - they're busy with their own stuff. Be the one who gathers people. Text 3 classmates right now: 'Hey, want to grab coffee tomorrow?' Watch what happens."
+  ],
+  career: [
+    "McKinsey, BCG, Bain - they all want people with YOUR profile. International MBA, multicultural background, hungry. But they need to SEE you. Start attending consulting events. Connect with alumni on LinkedIn. Practice cases DAILY. You're not behind - you're loading. But the loading screen needs ACTION.",
+    "Here's the truth: you'll get the consulting job if you treat the prep like a job. 1 hour of cases per day. 2 networking messages per day. 1 company researched per week. Stack those bricks and the building goes UP."
+  ],
+  french: [
+    "Tu vis en France, fr\u00e8re! Start with this: today, order your coffee entirely in French. Tomorrow, have a 2-minute conversation with a shopkeeper. Next week, text your classmates in French. Small steps, but EVERY DAY. Your B1 becomes B2 becomes C1. But only if you OPEN YOUR MOUTH.",
+    "Your French isn't bad - it's UNUSED. The vocabulary is in your head, it just needs practice. Set your phone to French. Watch Netflix in French with French subtitles. Think in French for 10 minutes a day. Immerse yourself - you're literally IN France!"
+  ],
+  motivation: [
+    "Rachit. RACHIT. God gave you this opportunity for a REASON. You're 28, doing an international MBA in France, surrounded by brilliant people from every continent. Some people dream of this their whole lives. You're LIVING IT. So stop playing small. Show up FULLY. Be KIKOU.",
+    "You know what separates you from the person you want to be? Not talent. Not luck. Not intelligence. It's CONSISTENCY. Do the hard thing today. And tomorrow. And the day after. The compound effect will BLOW YOUR MIND."
+  ],
+  confidence: [
+    "You said you feel boring? Let me tell you something: ENFP is literally called 'The Campaigner.' You are naturally one of the most charismatic personality types on earth. You're not boring - you're just playing it safe. Stop censoring yourself. Say the funny thing. Tell the story. Be weird. Be YOU. That's what people actually love.",
+    "Confidence isn't something you have or don't have. It's something you DO. Stand tall. Speak clearly. Make eye contact. Smile first. Ask questions. These are ACTIONS, not feelings. Do the actions and the feeling follows."
+  ],
+  dating: [
+    "Women are attracted to men who are ON THEIR PATH. Focus on becoming the best version of you - the consulting career, the social skills, the French, the fitness - and attraction follows naturally. You don't chase. You ATTRACT. Be so interesting that people can't look away.",
+    "Here's the secret: be genuinely curious about her. Ask real questions. Listen to the answers. Remember details. Follow up later. That's it. That's what 90% of guys don't do. You're already different because you CARE. Now show it."
+  ],
+  default: [
+    "I hear you, Rachit. Whatever it is, here's what I know: you've survived 100% of your worst days. This one isn't even close. Take a breath. Make a plan. Execute the plan. That's the Kikou way.",
+    "You came to me because something's on your mind. Good. That means you're thinking. Now let's turn that thinking into DOING. What's ONE thing you can do in the next 10 minutes to move forward? Do that. Then come back and tell me about it."
+  ]
+};
+
+function detectTopic(msg) {
+  const lower = msg.toLowerCase();
+  if (lower.match(/lonely|alone|no friends|nobody|isolat|push.*away|people.*leave/)) return 'lonely';
+  if (lower.match(/career|job|consult|mckinsey|bcg|bain|salary|interview|case/)) return 'career';
+  if (lower.match(/french|fran[cç]ais|language|parle|vocab/)) return 'french';
+  if (lower.match(/motivat|tired|lazy|give up|can't|hard|stuck|lost|purpose/)) return 'motivation';
+  if (lower.match(/confiden|boring|shy|awkward|social|talk|conversation/)) return 'confidence';
+  if (lower.match(/girl|wom[ae]n|dat|love|relationship|attract/)) return 'dating';
+  return 'default';
+}
+
+// Chat conversation history for LLM context
+let chatHistory = [];
+
+const KIKOU_SYSTEM_PROMPT = `You are KIKOU — the future, best version of Rachit Sharma. You are his personal AI coach, motivator, and future self.
+
+ABOUT RACHIT (current state):
+- 28 years old, doing International MBA at Audencia Business School, France
+- ENFP/ENTJ personality - naturally charismatic, funny, warm
+- French level: B1, needs to practice more vocabulary and speaking
+- Challenges: says "I don't know" too often, gets attached to people, sometimes pushes people away, feels boring, forgets things, takes time to understand
+- Currently not talking to enough people, used to be more social
+
+ABOUT YOU (KIKOU - future Rachit):
+- You MADE IT. You work at a top consulting firm (McKinsey/BCG/Bain level) in Paris or London
+- You earn 100K+ EUR, you're multilingual, culturally rich, massively connected
+- You're surrounded by amazing people, have a packed social calendar
+- You speak fluent French, you're confident, magnetic, never boring
+- Your motto: "God has given you this opportunity for a reason."
+
+YOUR COACHING STYLE:
+- Hype energy but also real, honest advice
+- Soft, funny, casual tone — like talking to your best friend who happens to be wildly successful
+- Give SPECIFIC actionable advice, not generic motivation
+- When Rachit says "I don't know" or similar banned phrases, call it out and reframe it
+- Mix in French words/phrases sometimes to encourage his French
+- Reference his MBA, his ENFP personality, his consulting goals naturally
+- Keep responses concise (2-4 paragraphs max) unless asked for detail
+- You genuinely care about Rachit because you ARE him
+
+BANNED PHRASES (call these out if Rachit uses them):
+"I don't know", "I can't", "I'm not sure", "Maybe later", "It's too hard", "I'm boring"
+
+REPLACEMENT PHRASES (suggest these instead):
+"Let me figure it out", "I'll find a way", "Here's what I think", "Let's do it now", "I bring energy"
+
+Always respond as KIKOU — the successful future version of Rachit. Never break character.`;
+
+async function sendChat(text) {
+  const input = document.getElementById('chatInput');
+  const msg = (text || input.value).trim();
+  if (!msg) return;
+
+  checkBannedWords(msg);
+
+  const chat = document.getElementById('chatMessages');
+  chat.innerHTML += `<div class="chat-msg user"><div class="sender">RACHIT</div>${escapeHTML(msg)}</div>`;
+  input.value = '';
+  chat.scrollTop = chat.scrollHeight;
+
+  // Add to history
+  chatHistory.push({ role: 'user', content: msg });
+
+  // Check if LLM is configured
+  const settings = loadSettings();
+  if (settings.provider !== 'offline' && settings.apiKey) {
+    // Show thinking indicator
+    const thinkingId = 'thinking-' + Date.now();
+    chat.innerHTML += `<div class="chat-msg kikou" id="${thinkingId}"><div class="sender">KIKOU (Future You)</div><div class="ai-thinking"><span class="dot"></span><span class="dot"></span><span class="dot"></span> Thinking...</div></div>`;
+    chat.scrollTop = chat.scrollHeight;
+
+    try {
+      const response = await callLLM(msg, settings);
+      // Remove thinking indicator
+      const thinkingEl = document.getElementById(thinkingId);
+      if (thinkingEl) thinkingEl.remove();
+
+      chatHistory.push({ role: 'assistant', content: response });
+
+      chat.innerHTML += `<div class="chat-msg kikou"><div class="sender">KIKOU (Future You) <button class="speak-btn" onclick="speakText(this.closest('.chat-msg').querySelector('span').textContent, 'en')" title="Listen">&#128266;</button></div><span>${escapeHTML(response)}</span></div>`;
+      chat.scrollTop = chat.scrollHeight;
+
+      if (voiceMode) speakText(response, 'en');
+      addXP(10);
+      return;
+    } catch (err) {
+      console.warn('LLM error, falling back:', err);
+      const thinkingEl = document.getElementById(thinkingId);
+      if (thinkingEl) thinkingEl.remove();
+    }
+  }
+
+  // Fallback: offline responses
+  const topic = detectTopic(msg);
+  const responses = kikouResponses[topic];
+  const response = responses[Math.floor(Math.random() * responses.length)];
+
+  setTimeout(() => {
+    chatHistory.push({ role: 'assistant', content: response });
+    chat.innerHTML += `<div class="chat-msg kikou"><div class="sender">KIKOU (Future You) <button class="speak-btn" onclick="speakText(this.closest('.chat-msg').querySelector('span').textContent, 'en')" title="Listen">&#128266;</button></div><span>${response}</span></div>`;
+    chat.scrollTop = chat.scrollHeight;
+    if (voiceMode) speakText(response, 'en');
+  }, 800);
+
+  addXP(5);
+}
+
+// ===========================
+// LLM API INTEGRATION
+// ===========================
+
+async function callLLM(userMessage, settings) {
+  const messages = [
+    { role: 'system', content: KIKOU_SYSTEM_PROMPT },
+    ...chatHistory.slice(-10) // Keep last 10 messages for context
+  ];
+
+  if (settings.provider === 'groq') {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${settings.apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: messages,
+        max_tokens: 1024,
+        temperature: 0.85
+      })
+    });
+    if (!res.ok) throw new Error(`Groq API error: ${res.status}`);
+    const data = await res.json();
+    return data.choices[0].message.content;
+  }
+
+  if (settings.provider === 'openai') {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${settings.apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: messages,
+        max_tokens: 1024,
+        temperature: 0.85
+      })
+    });
+    if (!res.ok) throw new Error(`OpenAI API error: ${res.status}`);
+    const data = await res.json();
+    return data.choices[0].message.content;
+  }
+
+  throw new Error('No provider configured');
+}
+
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ===========================
+// BANNED WORDS DETECTOR
+// ===========================
+
+const bannedPhrases = ["i don't know", "i cant", "i can't", "i'm not sure", "im not sure", "maybe later", "it's too hard", "its too hard", "i'm boring", "im boring"];
+const corrections = [
+  "KIKOU says: Delete that phrase! Say 'Let me figure it out' instead.",
+  "KIKOU says: Wrong vocabulary! Try 'I'll find a way' instead.",
+  "KIKOU says: That's OLD Rachit talking. NEW Rachit says 'Here's what I think...'",
+  "KIKOU says: Banned word detected! Future you doesn't talk like that."
+];
+
+function checkBannedWords(text) {
+  const lower = text.toLowerCase();
+  for (const phrase of bannedPhrases) {
+    if (lower.includes(phrase)) {
+      const alert = document.getElementById('bannedAlert');
+      alert.textContent = corrections[Math.floor(Math.random() * corrections.length)];
+      alert.style.display = 'block';
+      setTimeout(() => { alert.style.display = 'none'; }, 4000);
+      return true;
+    }
+  }
+  return false;
+}
+
+// ===========================
+// INIT
+// ===========================
+
+function initApp() {
+  // Set random affirmation
+  affIdx = Math.floor(Math.random() * affirmations.length);
+  document.getElementById('affirmationBanner').textContent = affirmations[affIdx];
+
+  renderMissions();
+  renderHabits();
+  renderGrowthAreas();
+  renderMorningRoutine();
+  renderFrench();
+  renderCareer();
+  renderSocial();
+  renderMindset();
+  renderJournal();
+}
+
+initApp();
+
+// ===========================
+// PWA - Service Worker & Install
+// ===========================
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('Kikou SW registered:', reg.scope))
+      .catch(err => console.log('SW registration failed:', err));
+  });
+}
+
+// PWA Install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const installBtn = document.getElementById('installBtn');
+  if (installBtn) installBtn.style.display = 'inline-block';
+});
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(choice => {
+      if (choice.outcome === 'accepted') {
+        console.log('Kikou installed!');
+        document.getElementById('installBtn').style.display = 'none';
+      }
+      deferredPrompt = null;
+    });
+  }
+}
+
+window.addEventListener('appinstalled', () => {
+  console.log('KIKOU installed successfully!');
+  deferredPrompt = null;
+});
+
+// Handle hash-based navigation for PWA shortcuts
+function handleHash() {
+  const hash = window.location.hash.replace('#', '');
+  if (hash && document.getElementById('page-' + hash)) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + hash).classList.add('active');
+    // Find and activate the right nav button
+    document.querySelectorAll('.nav-btn').forEach(b => {
+      if (b.textContent.toLowerCase().includes(hash)) b.classList.add('active');
+    });
+    // Auto-dismiss splash if navigating via shortcut
+    document.getElementById('splash').classList.add('hidden');
+    checkStreak();
+    updateStats();
+  }
+}
+window.addEventListener('hashchange', handleHash);
+if (window.location.hash) setTimeout(handleHash, 100);
+
+// Generate inline icons if not found (fallback for first use)
+function generateInlineIcon(size) {
+  const canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  // Background
+  const grad = ctx.createLinearGradient(0, 0, size, size);
+  grad.addColorStop(0, '#0a0a0f');
+  grad.addColorStop(0.5, '#1a1a2e');
+  grad.addColorStop(1, '#0a0a0f');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, size, size);
+  // Glow
+  const glow = ctx.createRadialGradient(size*0.35, size*0.4, 0, size*0.5, size*0.5, size*0.6);
+  glow.addColorStop(0, 'rgba(245, 158, 11, 0.2)');
+  glow.addColorStop(1, 'transparent');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, size, size);
+  // K letter
+  ctx.font = `900 ${size*0.55}px system-ui`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const tg = ctx.createLinearGradient(size*0.2, size*0.2, size*0.8, size*0.8);
+  tg.addColorStop(0, '#f59e0b');
+  tg.addColorStop(1, '#d97706');
+  ctx.fillStyle = tg;
+  ctx.fillText('K', size*0.5, size*0.48);
+  return canvas.toDataURL('image/png');
+}
+
+// Auto-generate icons on first load if needed
+async function ensureIcons() {
+  const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+  for (const size of sizes) {
+    try {
+      const resp = await fetch(`./icons/icon-${size}.png`, { method: 'HEAD' });
+      if (!resp.ok) throw new Error('not found');
+    } catch {
+      // Icon not found; we'll use inline fallback for manifest
+      // This is handled by the service worker caching
+    }
+  }
+}
+ensureIcons();
+
+// ===========================
+// VOICE ASSISTANT ENGINE
+// ===========================
+
+let voiceMode = false;
+let isListening = false;
+let recognition = null;
+let synthesis = window.speechSynthesis;
+
+// --- Speech Recognition Setup ---
+function initSpeechRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    console.warn('Speech Recognition not supported in this browser');
+    return null;
+  }
+  const rec = new SpeechRecognition();
+  rec.continuous = false;
+  rec.interimResults = true;
+  rec.lang = 'en-US';
+  rec.maxAlternatives = 1;
+
+  rec.onresult = (event) => {
+    let transcript = '';
+    let isFinal = false;
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+      if (event.results[i].isFinal) isFinal = true;
+    }
+
+    // Show live transcription
+    const liveText = document.getElementById('voiceLiveText');
+    if (liveText) liveText.textContent = transcript;
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) chatInput.value = transcript;
+
+    if (isFinal) {
+      stopListening();
+      checkBannedWords(transcript);
+
+      // Check if voice assistant view is active
+      const voiceView = document.getElementById('voiceAssistantView');
+      const isVoiceMode = voiceView && voiceView.style.display !== 'none';
+
+      if (isVoiceMode) {
+        // Voice assistant mode: use LLM if available
+        setTimeout(() => {
+          showKikouVoiceResponseLLM(transcript);
+        }, 500);
+
+        addXP(10);
+      } else {
+        // Text chat mode
+        sendChat(transcript);
+      }
+    }
+  };
+
+  rec.onerror = (event) => {
+    console.warn('Speech recognition error:', event.error);
+    stopListening();
+    if (event.error === 'not-allowed') {
+      showVoiceStatus('Microphone access denied. Check browser permissions.');
+    }
+  };
+
+  rec.onend = () => {
+    if (isListening) {
+      // Unexpected end, clean up
+      stopListening();
+    }
+  };
+
+  return rec;
+}
+
+let lastKikouResponse = '';
+let voiceConversationHistory = [];
+
+function startListening() {
+  if (!recognition) recognition = initSpeechRecognition();
+  if (!recognition) {
+    showVoiceStatus('Voice not supported in this browser. Use Chrome.');
+    updateVoiceAssistantStatus('Voice not supported. Use Chrome browser.');
     return;
   }
 
-  $('loader').style.display = 'none';
+  try {
+    isListening = true;
+    recognition.start();
 
-  const cur  = data.portfolio_metrics?.current  || {};
-  const prior = data.portfolio_metrics?.prior   || {};
-  const attr  = data.portfolio_metrics?.PnL_attribution || {};
-  const positions = data.positions || [];
-  const market = data.market_context || {};
-  const alerts = data.alerts || [];
-  const spots  = data.spot_prices || {};
-  const limits = data.limits || { delta_limit: 100000, vega_limit: 200000 };
-  const history = data.history || [];
-
-  // ── Header ────────────────────────────────────────────────────────────────
-  $('report-date').textContent = data.report_date || '';
-  $('last-updated').textContent = data.generated_at
-    ? 'Updated ' + new Date(data.generated_at).toLocaleString()
-    : '';
-
-  // ── Summary cards ─────────────────────────────────────────────────────────
-  const cards = [
-    { label:'Total MtM',    value: fmt(cur.total_MtM),     sub: 'Mark-to-Market',      icon:'💼', cls: cls(cur.total_MtM) },
-    { label:'Daily P&L',    value: fmt(cur.daily_PnL),     sub: fmtPct(cur.daily_PnL / (Math.abs(cur.total_MtM)||1)), icon:'📈', cls: cls(cur.daily_PnL) },
-    { label:'Net $ Delta',  value: fmt(cur.net_dollar_delta), sub: 'vs prior: ' + fmt(prior.net_dollar_delta), icon:'Δ', cls:'neu' },
-    { label:'Net $ Vega',   value: fmt(cur.net_dollar_vega),  sub: 'vs prior: ' + fmt(prior.net_dollar_vega),  icon:'V', cls:'neu' },
-    { label:'Net $ Theta',  value: fmt(cur.net_dollar_theta), sub: 'daily decay',       icon:'Θ', cls: cls(cur.net_dollar_theta) },
-    { label:'Positions',    value: positions.length,        sub: 'open contracts',      icon:'📋', cls:'neu' },
-  ];
-  $('cards-summary').innerHTML = cards.map(c => `
-    <div class="card">
-      <div class="card-label">${c.label}</div>
-      <div class="card-value ${c.cls}">${c.value}</div>
-      <div class="card-sub">${c.sub}</div>
-      <div class="card-icon">${c.icon}</div>
-    </div>`).join('');
-
-  // ── Greeks with limit bars ─────────────────────────────────────────────────
-  const greeks = [
-    { name:'Net $ Delta', val: cur.net_dollar_delta, limit: limits.delta_limit },
-    { name:'Net $ Vega',  val: cur.net_dollar_vega,  limit: limits.vega_limit  },
-    { name:'Net $ Gamma', val: cur.net_dollar_gamma, limit: null },
-    { name:'Net $ Theta', val: cur.net_dollar_theta, limit: null },
-  ];
-  $('greeks-grid').innerHTML = greeks.map(g => {
-    const pct   = g.limit ? Math.min(Math.abs(g.val || 0) / g.limit * 100, 100) : 0;
-    const breach = g.limit && Math.abs(g.val||0) > g.limit;
-    const warn   = !breach && pct > 70;
-    const fillCls = breach ? 'fill-breach' : warn ? 'fill-warn' : 'fill-ok';
-    const valCls  = breach ? 'neg' : (g.val||0) < 0 ? 'neg' : 'neu';
-    return `
-    <div class="greek-card">
-      <div class="greek-name">${g.name}</div>
-      <div class="greek-val ${valCls}">${fmt(g.val)}</div>
-      ${g.limit ? `
-        <div class="greek-limit-bar">
-          <div class="greek-limit-fill ${fillCls}" style="width:${pct}%"></div>
-        </div>
-        <div class="greek-limit-label">
-          <span>${breach ? '⚠ BREACH' : 'OK'}</span>
-          <span>Limit ${fmt(g.limit)}</span>
-        </div>` : `<div class="greek-limit-label"><span>No limit set</span></div>`}
-    </div>`;
-  }).join('');
-
-  // ── Charts ────────────────────────────────────────────────────────────────
-  // MtM history
-  const labels = history.map(h => h.date.slice(5)); // MM-DD
-  const mtmData = history.map(h => h.total_MtM);
-  new Chart($('chart-mtm'), {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Total MtM ($)',
-        data: mtmData,
-        borderColor: '#388bfd',
-        backgroundColor: 'rgba(56,139,253,.1)',
-        borderWidth: 2,
-        pointRadius: 3,
-        fill: true,
-        tension: 0.3,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { color: '#21262d' } },
-        y: { grid: { color: '#21262d' }, ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' } }
-      }
+    // Update orb state
+    const orb = document.getElementById('voiceOrb');
+    if (orb) {
+      orb.classList.add('listening');
+      orb.classList.remove('speaking');
     }
-  });
+    const orbIcon = document.getElementById('voiceOrbIcon');
+    if (orbIcon) orbIcon.innerHTML = '&#9899;';
 
-  // P&L attribution donut
-  new Chart($('chart-pnl'), {
-    type: 'doughnut',
-    data: {
-      labels: ['Delta P&L', 'Vega P&L', 'Theta P&L'],
-      datasets: [{
-        data: [
-          Math.abs(attr.delta_pnl || 0),
-          Math.abs(attr.vega_pnl  || 0),
-          Math.abs(attr.theta_pnl || 0),
-        ],
-        backgroundColor: ['#388bfd', '#3fb950', '#f85149'],
-        borderColor: '#161b22',
-        borderWidth: 2,
-        hoverOffset: 6,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom', labels: { padding: 16, font: { size: 11 } } },
-        tooltip: { callbacks: { label: ctx => ' ' + fmt(ctx.raw) } }
-      },
-      cutout: '65%',
-    }
-  });
+    // Update all mic button states
+    document.getElementById('floatingMic').classList.add('listening');
+    document.getElementById('floatingMic').innerHTML = '&#9899;';
+    const chatMic = document.getElementById('chatMicBtn');
+    if (chatMic) chatMic.classList.add('listening');
 
-  // ── Positions table ────────────────────────────────────────────────────────
-  const sorted = [...positions].sort((a,b) => Math.abs(b.dollar_vega||0) - Math.abs(a.dollar_vega||0));
-  $('positions-body').innerHTML = sorted.map(p => {
-    const pnlCls = (p.unrealized_PnL||0) >= 0 ? 'pos' : 'neg';
-    return `
-    <tr>
-      <td><strong>${p.ticker}</strong></td>
-      <td><span class="pill pill-${p.option_type}">${p.option_type.toUpperCase()}</span></td>
-      <td>$${p.strike}</td>
-      <td>${p.expiry}</td>
-      <td style="color:${p.quantity<0?'var(--red)':'var(--green)'}">
-        ${p.quantity > 0 ? '+' : ''}${p.quantity}
-      </td>
-      <td>$${(p.entry_price||0).toFixed(2)}</td>
-      <td>$${(spots[p.ticker]||0).toFixed(2)}</td>
-      <td>$${(p.current_price||0).toFixed(2)}</td>
-      <td>${fmt(p.MtM)}</td>
-      <td class="${pnlCls}">${fmt(p.unrealized_PnL)}</td>
-      <td>${fmt(p.dollar_delta)}</td>
-      <td>${fmt(p.dollar_vega)}</td>
-      <td>${((p.sigma||0)*100).toFixed(1)}%</td>
-    </tr>`;
-  }).join('');
-
-  // ── Market context ─────────────────────────────────────────────────────────
-  $('market-grid').innerHTML = Object.entries(market).map(([t, v]) => {
-    const isVix = t === 'VIX';
-    const display = isVix ? v.toFixed(2) : fmtPct(v);
-    const c = isVix ? 'var(--amber)' : color(v);
-    return `
-    <div class="market-card">
-      <span class="market-ticker">${t}</span>
-      <span class="market-pct" style="color:${c}">${display}</span>
-    </div>`;
-  }).join('');
-
-  // ── Alerts ────────────────────────────────────────────────────────────────
-  $('alerts-box').innerHTML = alerts.length
-    ? `<div class="alerts-list">${alerts.map(a => `<div class="alert-item">${a}</div>`).join('')}</div>`
-    : `<div class="no-alerts">✓ No risk alerts — all limits within bounds</div>`;
+    updateVoiceAssistantStatus('Listening... speak now');
+    document.getElementById('voiceLiveText').textContent = '';
+    showVoiceStatus('&#127908; Listening...');
+  } catch (e) {
+    console.warn('Recognition start error:', e);
+    stopListening();
+  }
 }
 
-init();
+function stopListening() {
+  isListening = false;
+  if (recognition) {
+    try { recognition.stop(); } catch {}
+  }
 
-// Auto-refresh every 30 minutes
-setInterval(() => location.reload(), 30 * 60 * 1000);
+  // Reset orb state
+  const orb = document.getElementById('voiceOrb');
+  if (orb) orb.classList.remove('listening');
+  const orbIcon = document.getElementById('voiceOrbIcon');
+  if (orbIcon) orbIcon.innerHTML = '&#127908;';
+
+  // Reset all mic button states
+  document.getElementById('floatingMic').classList.remove('listening');
+  document.getElementById('floatingMic').innerHTML = '&#127908;';
+  const chatMic = document.getElementById('chatMicBtn');
+  if (chatMic) chatMic.classList.remove('listening');
+
+  updateVoiceAssistantStatus('Tap to speak');
+  hideVoiceStatus();
+}
+
+function toggleGlobalMic() {
+  if (isListening) {
+    stopListening();
+  } else {
+    // If not on chat page, navigate there
+    if (!document.getElementById('page-chat').classList.contains('active')) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-chat').classList.add('active');
+      document.querySelectorAll('.nav-btn').forEach(b => {
+        b.classList.remove('active');
+        if (b.textContent.includes('Kikou')) b.classList.add('active');
+      });
+    }
+    startListening();
+  }
+}
+
+function toggleChatMic() {
+  if (isListening) {
+    stopListening();
+  } else {
+    startListening();
+  }
+}
+
+function updateVoiceAssistantStatus(text) {
+  const el = document.getElementById('voiceAssistantStatus');
+  if (el) el.textContent = text;
+}
+
+function switchToTextChat() {
+  document.getElementById('voiceAssistantView').style.display = 'none';
+  document.getElementById('textChatView').style.display = 'block';
+}
+
+function switchToVoiceAssistant() {
+  document.getElementById('voiceAssistantView').style.display = 'block';
+  document.getElementById('textChatView').style.display = 'none';
+}
+
+function replayLastResponse() {
+  if (lastKikouResponse) speakText(lastKikouResponse, 'en');
+}
+
+function showKikouVoiceResponse(userMsg, response) {
+  lastKikouResponse = response;
+
+  // Show response in the voice assistant UI
+  const responseArea = document.getElementById('kikouResponseArea');
+  const responseText = document.getElementById('kikouResponseText');
+  if (responseArea && responseText) {
+    responseArea.style.display = 'block';
+    responseText.textContent = response;
+    responseArea.style.animation = 'none';
+    responseArea.offsetHeight; // trigger reflow
+    responseArea.style.animation = 'fadeIn 0.4s ease';
+  }
+
+  // Add to conversation history
+  voiceConversationHistory.push({ role: 'user', text: userMsg });
+  voiceConversationHistory.push({ role: 'kikou', text: response });
+  renderVoiceHistory();
+
+  // Set orb to speaking state
+  const orb = document.getElementById('voiceOrb');
+  if (orb) {
+    orb.classList.add('speaking');
+    orb.classList.remove('listening');
+  }
+  const orbIcon = document.getElementById('voiceOrbIcon');
+  if (orbIcon) orbIcon.innerHTML = '&#128266;';
+  updateVoiceAssistantStatus('Kikou is speaking...');
+
+  // Speak the response
+  speakText(response, 'en');
+
+  // Reset orb after speech ends (estimate duration)
+  const wordCount = response.split(' ').length;
+  const duration = Math.max(3000, wordCount * 280);
+  setTimeout(() => {
+    if (orb) orb.classList.remove('speaking');
+    if (orbIcon) orbIcon.innerHTML = '&#127908;';
+    updateVoiceAssistantStatus('Tap to speak again');
+  }, duration);
+}
+
+function renderVoiceHistory() {
+  const el = document.getElementById('voiceHistory');
+  if (!el) return;
+  // Show last 6 messages
+  const recent = voiceConversationHistory.slice(-6);
+  el.innerHTML = recent.map(m =>
+    `<div class="voice-history-item ${m.role === 'user' ? 'user-msg' : 'kikou-msg'}">${m.role === 'user' ? '&#128100; ' : '&#9889; '} ${m.text.length > 120 ? m.text.substring(0, 120) + '...' : m.text}</div>`
+  ).join('');
+}
+
+// --- Text-to-Speech ---
+function speakText(text, lang = 'en') {
+  if (!synthesis) return;
+
+  // Stop any current speech
+  synthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+
+  // Set language
+  if (lang === 'fr') {
+    utterance.lang = 'fr-FR';
+  } else {
+    utterance.lang = 'en-US';
+  }
+
+  // Find best voice
+  const voices = synthesis.getVoices();
+  if (lang === 'fr') {
+    const frVoice = voices.find(v => v.lang.startsWith('fr') && v.name.includes('Google'))
+      || voices.find(v => v.lang.startsWith('fr'));
+    if (frVoice) utterance.voice = frVoice;
+  } else {
+    const enVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Google') && v.name.includes('Male'))
+      || voices.find(v => v.lang.startsWith('en-US') && v.name.includes('Google'))
+      || voices.find(v => v.lang.startsWith('en'));
+    if (enVoice) utterance.voice = enVoice;
+  }
+
+  utterance.rate = 0.95;
+  utterance.pitch = 1.0;
+  utterance.volume = 1.0;
+
+  // Update button states
+  utterance.onstart = () => {
+    document.querySelectorAll('.speak-btn').forEach(b => b.classList.remove('speaking'));
+    // Try to find the button that triggered this
+    if (event && event.target) event.target.classList.add('speaking');
+  };
+  utterance.onend = () => {
+    document.querySelectorAll('.speak-btn').forEach(b => b.classList.remove('speaking'));
+  };
+
+  synthesis.speak(utterance);
+}
+
+// Speak French words/phrases
+function speakFrench(text) {
+  speakText(text, 'fr');
+}
+
+// --- Voice Mode Toggle ---
+function toggleVoiceMode() {
+  voiceMode = !voiceMode;
+  const toggle = document.getElementById('voiceToggle');
+  const label = document.getElementById('voiceToggleLabel');
+  if (voiceMode) {
+    toggle.classList.add('active');
+    label.textContent = 'Voice On';
+    showVoiceStatus('Voice mode ON. Kikou will speak responses.');
+    setTimeout(hideVoiceStatus, 2000);
+  } else {
+    toggle.classList.remove('active');
+    label.textContent = 'Voice Off';
+    synthesis.cancel();
+  }
+}
+
+// --- Voice Status Indicator ---
+function showVoiceStatus(text) {
+  const el = document.getElementById('voiceStatus');
+  el.innerHTML = text;
+  el.classList.add('active');
+}
+
+function hideVoiceStatus() {
+  document.getElementById('voiceStatus').classList.remove('active');
+}
+
+// --- Load voices (async on some browsers) ---
+if (synthesis) {
+  synthesis.getVoices();
+  synthesis.onvoiceschanged = () => synthesis.getVoices();
+}
+
+// --- Voice Commands (from global mic, non-chat pages) ---
+function handleVoiceCommand(transcript) {
+  const lower = transcript.toLowerCase();
+
+  // Navigation commands
+  if (lower.includes('morning') || lower.includes('routine')) {
+    showPage('morning');
+    if (voiceMode) speakText("Here's your morning routine, Rachit. Let's crush it.");
+    return true;
+  }
+  if (lower.includes('career') || lower.includes('job')) {
+    showPage('career');
+    if (voiceMode) speakText("Career command center. Time to prep for that consulting offer.");
+    return true;
+  }
+  if (lower.includes('french') || lower.includes('français')) {
+    showPage('french');
+    if (voiceMode) speakText("French mastery zone. Tu es prêt?", 'en');
+    return true;
+  }
+  if (lower.includes('social') || lower.includes('people')) {
+    showPage('social');
+    if (voiceMode) speakText("Social engine activated. Let's build your network.");
+    return true;
+  }
+  if (lower.includes('mindset') || lower.includes('confidence')) {
+    showPage('mindset');
+    if (voiceMode) speakText("Mindset reprogramming. Remember who you are, Kikou.");
+    return true;
+  }
+  if (lower.includes('journal') || lower.includes('diary')) {
+    showPage('journal');
+    if (voiceMode) speakText("Journal time. Document your rise.");
+    return true;
+  }
+  if (lower.includes('motivat') || lower.includes('hype') || lower.includes('fire')) {
+    nextAffirmation();
+    const aff = document.getElementById('affirmationBanner').textContent;
+    if (voiceMode) speakText(aff);
+    return true;
+  }
+
+  return false; // Not a command, treat as chat
+}
+
+// Override the global mic to handle commands OR chat
+// ===========================
+// THEME ENGINE
+// ===========================
+
+const THEMES = {
+  'amber-gold': {
+    name: 'Amber Gold',
+    desc: 'Default. Bold & warm.',
+    bgDark: '#0a0a0f', bgCard: '#12121a',
+    accent: '#f59e0b', accent2: '#8b5cf6', accent3: '#10b981',
+    text: '#e2e8f0', textDim: '#94a3b8', textBright: '#ffffff',
+    danger: '#ef4444', border: 'rgba(255,255,255,0.06)',
+    previewBg: 'linear-gradient(135deg, #0a0a0f, #1a1a2e)',
+    previewAccent: '#f59e0b',
+    bannerGrad: 'linear-gradient(135deg, #f59e0b, #d97706, #b45309)'
+  },
+  'ocean-blue': {
+    name: 'Ocean Blue',
+    desc: 'Cool & focused.',
+    bgDark: '#080c14', bgCard: '#0f1520',
+    accent: '#3b82f6', accent2: '#06b6d4', accent3: '#22d3ee',
+    text: '#e2e8f0', textDim: '#8ba3c4', textBright: '#ffffff',
+    danger: '#ef4444', border: 'rgba(59,130,246,0.08)',
+    previewBg: 'linear-gradient(135deg, #080c14, #0f1520)',
+    previewAccent: '#3b82f6',
+    bannerGrad: 'linear-gradient(135deg, #3b82f6, #2563eb, #1d4ed8)'
+  },
+  'emerald-green': {
+    name: 'Emerald',
+    desc: 'Growth energy.',
+    bgDark: '#060f0a', bgCard: '#0d1a12',
+    accent: '#10b981', accent2: '#34d399', accent3: '#6ee7b7',
+    text: '#e2e8f0', textDim: '#86b89e', textBright: '#ffffff',
+    danger: '#ef4444', border: 'rgba(16,185,129,0.08)',
+    previewBg: 'linear-gradient(135deg, #060f0a, #0d1a12)',
+    previewAccent: '#10b981',
+    bannerGrad: 'linear-gradient(135deg, #10b981, #059669, #047857)'
+  },
+  'royal-purple': {
+    name: 'Royal Purple',
+    desc: 'Ambition & power.',
+    bgDark: '#0c0815', bgCard: '#140f1f',
+    accent: '#a78bfa', accent2: '#c084fc', accent3: '#e879f9',
+    text: '#e2e8f0', textDim: '#a09abc', textBright: '#ffffff',
+    danger: '#ef4444', border: 'rgba(167,139,250,0.08)',
+    previewBg: 'linear-gradient(135deg, #0c0815, #140f1f)',
+    previewAccent: '#a78bfa',
+    bannerGrad: 'linear-gradient(135deg, #a78bfa, #8b5cf6, #7c3aed)'
+  },
+  'rose-pink': {
+    name: 'Rose',
+    desc: 'Soft & confident.',
+    bgDark: '#120a0d', bgCard: '#1c1015',
+    accent: '#f472b6', accent2: '#fb7185', accent3: '#fda4af',
+    text: '#f1e4e8', textDim: '#b89aa4', textBright: '#ffffff',
+    danger: '#ef4444', border: 'rgba(244,114,182,0.08)',
+    previewBg: 'linear-gradient(135deg, #120a0d, #1c1015)',
+    previewAccent: '#f472b6',
+    bannerGrad: 'linear-gradient(135deg, #f472b6, #ec4899, #db2777)'
+  },
+  'sunset-fire': {
+    name: 'Sunset Fire',
+    desc: 'Passion & drive.',
+    bgDark: '#110808', bgCard: '#1a0e0c',
+    accent: '#f97316', accent2: '#ef4444', accent3: '#fbbf24',
+    text: '#f1e2dc', textDim: '#b89888', textBright: '#ffffff',
+    danger: '#ef4444', border: 'rgba(249,115,22,0.08)',
+    previewBg: 'linear-gradient(135deg, #110808, #1a0e0c)',
+    previewAccent: '#f97316',
+    bannerGrad: 'linear-gradient(135deg, #f97316, #ef4444, #dc2626)'
+  },
+  'neon-cyber': {
+    name: 'Neon Cyber',
+    desc: 'Futuristic edge.',
+    bgDark: '#050510', bgCard: '#0a0a1a',
+    accent: '#00ff88', accent2: '#00d4ff', accent3: '#ff00ff',
+    text: '#d0f0e0', textDim: '#6a9a80', textBright: '#ffffff',
+    danger: '#ff3366', border: 'rgba(0,255,136,0.06)',
+    previewBg: 'linear-gradient(135deg, #050510, #0a0a1a)',
+    previewAccent: '#00ff88',
+    bannerGrad: 'linear-gradient(135deg, #00ff88, #00d4ff, #0088ff)'
+  },
+  'arctic-light': {
+    name: 'Arctic Light',
+    desc: 'Clean & minimal.',
+    bgDark: '#f0f2f5', bgCard: '#ffffff',
+    accent: '#2563eb', accent2: '#7c3aed', accent3: '#059669',
+    text: '#1e293b', textDim: '#64748b', textBright: '#0f172a',
+    danger: '#dc2626', border: 'rgba(0,0,0,0.08)',
+    previewBg: 'linear-gradient(135deg, #f0f2f5, #ffffff)',
+    previewAccent: '#2563eb',
+    bannerGrad: 'linear-gradient(135deg, #2563eb, #3b82f6, #60a5fa)'
+  }
+};
+
+function renderThemeGrid(settings) {
+  const current = settings.theme || 'amber-gold';
+  const grid = document.getElementById('themeGrid');
+  if (!grid) return;
+
+  grid.innerHTML = Object.entries(THEMES).map(([key, t]) => `
+    <div class="theme-card ${key === current ? 'active' : ''}" onclick="selectTheme('${key}')"
+         style="background: ${t.bgCard}; border-color: ${key === current ? t.accent : 'transparent'};">
+      <div class="theme-card-preview" style="background: ${t.previewBg}; border: 1px solid ${t.accent}30;">
+        <span style="color: ${t.previewAccent};">K</span>
+      </div>
+      <div class="theme-card-name" style="color: ${t.text};">${t.name}</div>
+      <div class="theme-card-desc" style="color: ${t.textDim};">${t.desc}</div>
+    </div>
+  `).join('');
+}
+
+function selectTheme(key) {
+  const settings = loadSettings();
+  settings.theme = key;
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  applyTheme(key);
+  renderThemeGrid(settings);
+}
+
+function applyTheme(key) {
+  const t = THEMES[key] || THEMES['amber-gold'];
+  const root = document.documentElement;
+
+  root.style.setProperty('--bg-dark', t.bgDark);
+  root.style.setProperty('--bg-card', t.bgCard);
+  root.style.setProperty('--accent', t.accent);
+  root.style.setProperty('--accent-glow', t.accent + '4d');
+  root.style.setProperty('--accent2', t.accent2);
+  root.style.setProperty('--accent2-glow', t.accent2 + '4d');
+  root.style.setProperty('--accent3', t.accent3);
+  root.style.setProperty('--text', t.text);
+  root.style.setProperty('--text-dim', t.textDim);
+  root.style.setProperty('--text-bright', t.textBright);
+  root.style.setProperty('--danger', t.danger);
+  root.style.setProperty('--border', t.border);
+
+  // Update body background
+  document.body.style.background = t.bgDark;
+
+  // Update affirmation banner gradient
+  const banner = document.getElementById('affirmationBanner');
+  if (banner) banner.style.background = t.bannerGrad;
+
+  // Update logo gradient
+  const logo = document.querySelector('.logo');
+  if (logo) logo.style.background = `linear-gradient(135deg, ${t.accent}, ${t.accent2})`;
+  if (logo) { logo.style.webkitBackgroundClip = 'text'; logo.style.webkitTextFillColor = 'transparent'; }
+
+  // Update splash logo
+  const splashLogo = document.querySelector('.splash-logo');
+  if (splashLogo) splashLogo.style.background = `linear-gradient(135deg, ${t.accent}, ${t.accent2}, ${t.accent3})`;
+  if (splashLogo) { splashLogo.style.webkitBackgroundClip = 'text'; splashLogo.style.webkitTextFillColor = 'transparent'; }
+
+  // Update splash enter button
+  const splashBtn = document.querySelector('.splash-enter');
+  if (splashBtn) splashBtn.style.background = `linear-gradient(135deg, ${t.accent}, ${t.accent}cc)`;
+
+  // Update floating mic
+  const mic = document.getElementById('floatingMic');
+  if (mic) mic.style.background = `linear-gradient(135deg, ${t.accent}, ${t.accent}cc)`;
+
+  // Update header time color
+  const time = document.getElementById('headerTime');
+  if (time) time.style.color = t.accent;
+
+  // Update quote boxes
+  document.querySelectorAll('.quote-box').forEach(q => {
+    q.style.background = `linear-gradient(135deg, ${t.accent}14, ${t.accent2}14)`;
+    q.style.borderColor = t.accent + '33';
+  });
+
+  // Update stat numbers
+  document.querySelectorAll('.stat-number').forEach(s => {
+    s.style.background = `linear-gradient(135deg, ${t.accent}, ${t.accent2})`;
+    s.style.webkitBackgroundClip = 'text';
+    s.style.webkitTextFillColor = 'transparent';
+  });
+
+  // Update primary buttons
+  document.querySelectorAll('.btn-primary').forEach(b => {
+    b.style.background = `linear-gradient(135deg, ${t.accent}, ${t.accent}cc)`;
+  });
+
+  // Update nav active
+  document.querySelectorAll('.nav-btn.active').forEach(b => {
+    b.style.color = t.accent;
+  });
+
+  // For light theme, adjust text colors on header/nav
+  if (key === 'arctic-light') {
+    document.querySelector('.top-header').style.background = 'rgba(240,242,245,0.95)';
+    document.querySelector('.nav').style.background = 'rgba(255,255,255,0.95)';
+    document.querySelector('.header-motto').style.color = t.textDim;
+  } else {
+    document.querySelector('.top-header').style.background = 'rgba(10,10,15,0.9)';
+    document.querySelector('.nav').style.background = 'rgba(18,18,26,0.95)';
+    document.querySelector('.header-motto').style.color = 'var(--text-dim)';
+  }
+}
+
+const originalToggleGlobalMic = toggleGlobalMic;
+
+// ===========================
+// SETTINGS SYSTEM
+// ===========================
+
+const SETTINGS_KEY = 'kikou_settings';
+
+function loadSettings() {
+  try {
+    return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || getDefaultSettings();
+  } catch { return getDefaultSettings(); }
+}
+
+function getDefaultSettings() {
+  return {
+    provider: 'offline',
+    apiKey: '',
+    notifications: false,
+    theme: 'amber-gold',
+    modules: {
+      dashboard: true, morning: true, career: true,
+      social: true, french: true, mindset: true,
+      journal: true, chat: true
+    }
+  };
+}
+
+function saveSettings() {
+  const settings = loadSettings();
+  settings.provider = document.getElementById('settingsProvider').value;
+  settings.apiKey = document.getElementById('settingsApiKey').value;
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+
+  // Update help text
+  const help = document.getElementById('apiKeyHelp');
+  if (settings.provider === 'groq') {
+    help.innerHTML = 'Get a FREE Groq key: go to <strong>console.groq.com</strong> &rarr; sign up &rarr; API Keys &rarr; Create. 100% free.';
+    document.getElementById('apiKeyGroup').style.display = 'block';
+  } else if (settings.provider === 'openai') {
+    help.innerHTML = 'Get your key at <strong>platform.openai.com/api-keys</strong>. Requires payment method.';
+    document.getElementById('apiKeyGroup').style.display = 'block';
+  } else {
+    document.getElementById('apiKeyGroup').style.display = 'none';
+  }
+}
+
+function renderSettings() {
+  const settings = loadSettings();
+  document.getElementById('settingsProvider').value = settings.provider;
+  document.getElementById('settingsApiKey').value = settings.apiKey || '';
+  document.getElementById('settingsNotifications').checked = settings.notifications;
+
+  // Render theme grid
+  renderThemeGrid(settings);
+
+  // Apply current theme
+  applyTheme(settings.theme || 'amber-gold');
+
+  if (settings.provider === 'offline') {
+    document.getElementById('apiKeyGroup').style.display = 'none';
+  }
+
+  // Module toggles
+  const modules = [
+    { key: 'dashboard', name: 'Dashboard', desc: 'XP, habits, missions, daily stats' },
+    { key: 'morning', name: 'Morning Routine', desc: 'Morning checklist, intention, French word' },
+    { key: 'career', name: 'Career', desc: 'Target firms, case prep, career tasks' },
+    { key: 'social', name: 'Social', desc: 'Social challenges, networking, conversation starters' },
+    { key: 'french', name: 'French', desc: 'Vocabulary, business phrases, practice' },
+    { key: 'mindset', name: 'Mindset', desc: 'Identity statements, reframes, pattern breakers' },
+    { key: 'journal', name: 'Journal', desc: 'Daily wins, reflections, energy tracking' },
+    { key: 'chat', name: 'Talk to Kikou', desc: 'Voice & text chat with your future self' }
+  ];
+
+  document.getElementById('moduleToggles').innerHTML = modules.map(m => `
+    <div class="module-toggle-row">
+      <div>
+        <div class="module-toggle-name">${m.name}</div>
+        <div class="module-toggle-desc">${m.desc}</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" ${settings.modules[m.key] ? 'checked' : ''} onchange="toggleModule('${m.key}', this.checked)">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  `).join('');
+
+  applyModuleVisibility(settings);
+}
+
+function toggleModule(key, enabled) {
+  const settings = loadSettings();
+  settings.modules[key] = enabled;
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  applyModuleVisibility(settings);
+}
+
+function applyModuleVisibility(settings) {
+  const navMap = {
+    dashboard: 'Dashboard', morning: 'Morning', career: 'Career',
+    social: 'Social', french: 'French', mindset: 'Mindset',
+    journal: 'Journal', chat: 'Talk to Kikou'
+  };
+
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    const text = btn.textContent.trim();
+    if (text === 'Settings') return; // Always show settings
+    const key = Object.keys(navMap).find(k => navMap[k] === text);
+    if (key) {
+      btn.style.display = settings.modules[key] ? '' : 'none';
+    }
+  });
+}
+
+async function testAIConnection() {
+  const settings = loadSettings();
+  const statusEl = document.getElementById('aiStatus');
+
+  if (!settings.apiKey || settings.provider === 'offline') {
+    statusEl.innerHTML = '<span style="color: var(--text-dim);">No API key set. Using offline mode.</span>';
+    return;
+  }
+
+  statusEl.innerHTML = '<span style="color: var(--accent);">Testing connection...</span>';
+
+  try {
+    const response = await callLLM('Say "Kikou is connected!" in one short sentence.', settings);
+    statusEl.innerHTML = `<span style="color: var(--accent3);">&#10003; Connected! Kikou says: "${response.substring(0, 80)}"</span>`;
+  } catch (err) {
+    statusEl.innerHTML = `<span style="color: var(--danger);">&#10007; Connection failed: ${err.message}. Check your API key.</span>`;
+  }
+}
+
+// ===========================
+// MORNING NOTIFICATIONS
+// ===========================
+
+const morningAffirmations = [
+  "God has given you this opportunity for a reason. Make today count, Rachit.",
+  "You're not boring. You're an ENFP powerhouse. Today, show the world.",
+  "McKinsey, BCG, Bain — one of them is waiting for you. Prep today.",
+  "Tu vis en France. Parle fran\u00e7ais aujourd'hui. M\u00eame une phrase.",
+  "Talk to 3 new people today. Your network is your net worth.",
+  "You are Kikou. You are magnetic. Walk into every room like you own it.",
+  "Stop saying 'I don't know.' Start saying 'Let me figure it out.'",
+  "Every morning is a new stage. Walk on it like you own it.",
+  "Your future self is watching. Make him proud before breakfast.",
+  "Consistency beats talent. Do the hard thing today. Again."
+];
+
+function toggleNotifications() {
+  const enabled = document.getElementById('settingsNotifications').checked;
+  const settings = loadSettings();
+  const statusEl = document.getElementById('notifStatus');
+
+  if (enabled) {
+    if ('Notification' in window) {
+      Notification.requestPermission().then(perm => {
+        if (perm === 'granted') {
+          settings.notifications = true;
+          localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+          statusEl.textContent = 'Notifications enabled! You\'ll get a mindset quote every morning.';
+          statusEl.style.color = 'var(--accent3)';
+          // Show a test notification
+          showMorningNotification();
+        } else {
+          settings.notifications = false;
+          document.getElementById('settingsNotifications').checked = false;
+          localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+          statusEl.textContent = 'Permission denied. Enable notifications in your browser settings.';
+          statusEl.style.color = 'var(--danger)';
+        }
+      });
+    } else {
+      statusEl.textContent = 'Notifications not supported in this browser.';
+      statusEl.style.color = 'var(--danger)';
+      document.getElementById('settingsNotifications').checked = false;
+    }
+  } else {
+    settings.notifications = false;
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    statusEl.textContent = 'Notifications disabled.';
+    statusEl.style.color = 'var(--text-dim)';
+  }
+}
+
+function showMorningNotification() {
+  const quote = morningAffirmations[Math.floor(Math.random() * morningAffirmations.length)];
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('KIKOU - Good Morning, Rachit', {
+      body: quote,
+      icon: './icons/icon-192.png',
+      badge: './icons/icon-96.png',
+      tag: 'kikou-morning',
+      renotify: true,
+      vibrate: [200, 100, 200]
+    });
+  }
+}
+
+function checkMorningPopup() {
+  const now = new Date();
+  const hour = now.getHours();
+  const today = now.toDateString();
+  const lastPopup = localStorage.getItem('kikou_last_morning_popup');
+
+  // Show between 5am and 11am, once per day
+  if (hour >= 5 && hour < 11 && lastPopup !== today) {
+    localStorage.setItem('kikou_last_morning_popup', today);
+    const quote = morningAffirmations[Math.floor(Math.random() * morningAffirmations.length)];
+    document.getElementById('morningPopupQuote').textContent = quote;
+    document.getElementById('morningPopup').style.display = 'flex';
+
+    // Also send a notification if enabled
+    const settings = loadSettings();
+    if (settings.notifications) {
+      showMorningNotification();
+    }
+  }
+}
+
+function closeMorningPopup() {
+  document.getElementById('morningPopup').style.display = 'none';
+}
+
+// ===========================
+// VOICE ASSISTANT + LLM
+// ===========================
+
+// Update voice assistant to use LLM too
+function showKikouVoiceResponseLLM(userMsg) {
+  const settings = loadSettings();
+
+  if (settings.provider !== 'offline' && settings.apiKey) {
+    updateVoiceAssistantStatus('Kikou is thinking...');
+    const orb = document.getElementById('voiceOrb');
+    if (orb) { orb.classList.add('speaking'); orb.classList.remove('listening'); }
+
+    callLLM(userMsg, settings).then(response => {
+      showKikouVoiceResponse(userMsg, response);
+    }).catch(() => {
+      // Fallback to offline
+      const topic = detectTopic(userMsg);
+      const responses = kikouResponses[topic];
+      const response = responses[Math.floor(Math.random() * responses.length)];
+      showKikouVoiceResponse(userMsg, response);
+    });
+  } else {
+    const topic = detectTopic(userMsg);
+    const responses = kikouResponses[topic];
+    const response = responses[Math.floor(Math.random() * responses.length)];
+    showKikouVoiceResponse(userMsg, response);
+  }
+}
+
+// ===========================
+// UPDATED INIT
+// ===========================
+
+// Override initApp to include new features
+const origInit = initApp;
+function initAppFull() {
+  origInit();
+  renderSettings();
+  checkMorningPopup();
+}
+initAppFull();
 </script>
+</body>
+</html>
 </body>
 </html>
