@@ -6,253 +6,126 @@
 <title>KIKOU - Theme Preview</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #0a0a0f; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; padding: 24px; }
-h1 { text-align: center; font-size: 28px; margin-bottom: 6px; background: linear-gradient(135deg, #f59e0b, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.subtitle { text-align: center; font-size: 13px; color: #94a3b8; margin-bottom: 32px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; max-width: 1400px; margin: 0 auto; }
+body { background: #07070b; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; padding: 20px 12px; }
+h1 { text-align: center; font-size: 24px; margin-bottom: 4px; background: linear-gradient(135deg, #f59e0b, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px; }
+.sub { text-align: center; font-size: 12px; color: #64748b; margin-bottom: 28px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; max-width: 1400px; margin: 0 auto; }
 
-.theme-demo {
-  border-radius: 20px;
-  overflow: hidden;
-  border: 2px solid rgba(255,255,255,0.06);
-  transition: all 0.3s;
+.phone {
+  border-radius: 28px; overflow: hidden; position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6); transition: transform 0.3s;
 }
-.theme-demo:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
-
-/* Mini phone frame */
-.phone-frame {
-  padding: 16px;
-  min-height: 520px;
-}
-
-.phone-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 14px;
-  border-radius: 12px 12px 0 0;
-  margin-bottom: 1px;
-}
-.phone-logo { font-size: 18px; font-weight: 900; letter-spacing: 3px; }
-.phone-motto { font-size: 8px; font-style: italic; max-width: 120px; text-align: right; }
-
-.phone-nav {
-  display: flex; gap: 4px; padding: 8px;
-  margin-bottom: 12px;
-  border-radius: 0 0 12px 12px;
-  overflow-x: auto;
-}
-.phone-nav span {
-  font-size: 9px; font-weight: 600;
-  padding: 5px 10px;
-  border-radius: 6px;
-  white-space: nowrap;
-}
-
-.phone-banner {
-  padding: 14px;
-  border-radius: 12px;
-  text-align: center;
-  font-weight: 800;
-  font-size: 11px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-}
-
-.phone-card {
-  padding: 14px;
-  border-radius: 12px;
-  margin-bottom: 10px;
-}
-.phone-card-title { font-size: 12px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-
-.mini-stat {
-  display: flex; gap: 8px; margin-bottom: 8px;
-}
-.mini-stat-box {
-  flex: 1;
-  padding: 8px;
-  border-radius: 8px;
-  text-align: center;
-}
-.mini-stat-num { font-size: 20px; font-weight: 900; }
-.mini-stat-label { font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
-
-.mini-progress { height: 5px; border-radius: 5px; margin: 6px 0; overflow: hidden; }
-.mini-progress-fill { height: 100%; border-radius: 5px; width: 60%; }
-
-.mini-habit { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 9px; }
-.mini-check { width: 14px; height: 14px; border-radius: 4px; border-width: 1.5px; border-style: solid; display: flex; align-items: center; justify-content: center; font-size: 8px; }
-
-.phone-chat-msg {
-  padding: 10px 12px;
-  border-radius: 12px;
-  font-size: 9px;
-  line-height: 1.5;
-  margin-bottom: 8px;
-  max-width: 85%;
-}
-
-.theme-name-bar {
-  padding: 14px 18px;
-  text-align: center;
-  font-weight: 800;
-  font-size: 16px;
-  letter-spacing: 1px;
-}
-.theme-desc-bar {
-  text-align: center;
-  font-size: 11px;
-  padding-bottom: 14px;
-}
+.phone:hover { transform: translateY(-6px); }
+.glow-bg { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; z-index: 0; }
+.notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 24px; border-radius: 0 0 16px 16px; z-index: 10; }
+.status-bar { display: flex; justify-content: space-between; align-items: center; padding: 8px 20px 4px; font-size: 10px; font-weight: 600; position: relative; z-index: 1; }
+.app-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; position: relative; z-index: 1; }
+.app-logo { font-size: 16px; font-weight: 900; letter-spacing: 3px; }
+.app-time { font-size: 9px; font-weight: 600; }
+.app-motto { font-size: 7px; font-style: italic; max-width: 100px; text-align: right; }
+.app-nav { display: flex; gap: 2px; padding: 6px 10px; overflow-x: hidden; position: relative; z-index: 1; }
+.app-nav span { font-size: 8px; font-weight: 600; padding: 5px 8px; border-radius: 6px; white-space: nowrap; }
+.app-content { padding: 10px 12px 16px; position: relative; z-index: 1; }
+.app-banner { padding: 12px; border-radius: 10px; text-align: center; font-weight: 800; font-size: 8px; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 10px; }
+.app-card { border-radius: 10px; padding: 10px; margin-bottom: 8px; }
+.app-card-title { font-size: 10px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+.stats-row { display: flex; gap: 6px; margin-bottom: 6px; }
+.stat-item { flex: 1; padding: 8px 4px; border-radius: 8px; text-align: center; }
+.stat-num { font-size: 18px; font-weight: 900; }
+.stat-lbl { font-size: 6px; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+.prog { height: 4px; border-radius: 4px; overflow: hidden; margin: 4px 0 2px; }
+.prog-fill { height: 100%; border-radius: 4px; }
+.habit { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 8px; }
+.habit-check { width: 13px; height: 13px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 7px; font-weight: 800; flex-shrink: 0; }
+.chat-bubble { padding: 8px 10px; border-radius: 10px; font-size: 8px; line-height: 1.5; max-width: 85%; }
+.chat-sender { font-size: 6px; font-weight: 700; margin-bottom: 2px; letter-spacing: 0.5px; }
+.mini-orb { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 10px auto 6px; font-size: 18px; }
+.fr-word { padding: 6px 8px; border-radius: 6px; margin-bottom: 6px; }
+.fr-text { font-size: 11px; font-weight: 800; }
+.fr-meaning { font-size: 7px; margin-top: 2px; }
+.floating-dot { width: 32px; height: 32px; border-radius: 50%; position: absolute; bottom: 12px; right: 12px; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 2; }
+.theme-label { text-align: center; padding: 16px 0 4px; font-size: 18px; font-weight: 800; letter-spacing: 1px; }
+.theme-desc { text-align: center; font-size: 11px; padding-bottom: 12px; }
 </style>
 </head>
 <body>
-<h1>KIKOU THEME PREVIEW</h1>
-<p class="subtitle">Tap your favourite in the app's Settings tab to apply it instantly.</p>
+<h1>KIKOU THEMES</h1>
+<p class="sub">Scroll through all 8 themes. Pick your favourite in the Settings tab.</p>
 <div class="grid" id="grid"></div>
 
 <script>
-const themes = [
-  {
-    key: 'amber-gold', name: 'Amber Gold', desc: 'Default. Bold & warm.',
-    bg: '#0a0a0f', card: '#12121a', accent: '#f59e0b', accent2: '#8b5cf6', accent3: '#10b981',
-    text: '#e2e8f0', dim: '#94a3b8', bright: '#fff', border: 'rgba(255,255,255,0.06)',
-    banner: 'linear-gradient(135deg, #f59e0b, #d97706, #b45309)',
-    headerBg: 'rgba(10,10,15,0.95)', navBg: 'rgba(18,18,26,0.95)'
-  },
-  {
-    key: 'ocean-blue', name: 'Ocean Blue', desc: 'Cool & focused.',
-    bg: '#080c14', card: '#0f1520', accent: '#3b82f6', accent2: '#06b6d4', accent3: '#22d3ee',
-    text: '#e2e8f0', dim: '#8ba3c4', bright: '#fff', border: 'rgba(59,130,246,0.08)',
-    banner: 'linear-gradient(135deg, #3b82f6, #2563eb, #1d4ed8)',
-    headerBg: 'rgba(8,12,20,0.95)', navBg: 'rgba(15,21,32,0.95)'
-  },
-  {
-    key: 'emerald-green', name: 'Emerald Green', desc: 'Growth energy.',
-    bg: '#060f0a', card: '#0d1a12', accent: '#10b981', accent2: '#34d399', accent3: '#6ee7b7',
-    text: '#e2e8f0', dim: '#86b89e', bright: '#fff', border: 'rgba(16,185,129,0.08)',
-    banner: 'linear-gradient(135deg, #10b981, #059669, #047857)',
-    headerBg: 'rgba(6,15,10,0.95)', navBg: 'rgba(13,26,18,0.95)'
-  },
-  {
-    key: 'royal-purple', name: 'Royal Purple', desc: 'Ambition & power.',
-    bg: '#0c0815', card: '#140f1f', accent: '#a78bfa', accent2: '#c084fc', accent3: '#e879f9',
-    text: '#e2e8f0', dim: '#a09abc', bright: '#fff', border: 'rgba(167,139,250,0.08)',
-    banner: 'linear-gradient(135deg, #a78bfa, #8b5cf6, #7c3aed)',
-    headerBg: 'rgba(12,8,21,0.95)', navBg: 'rgba(20,15,31,0.95)'
-  },
-  {
-    key: 'rose-pink', name: 'Rose Pink', desc: 'Soft & confident.',
-    bg: '#120a0d', card: '#1c1015', accent: '#f472b6', accent2: '#fb7185', accent3: '#fda4af',
-    text: '#f1e4e8', dim: '#b89aa4', bright: '#fff', border: 'rgba(244,114,182,0.08)',
-    banner: 'linear-gradient(135deg, #f472b6, #ec4899, #db2777)',
-    headerBg: 'rgba(18,10,13,0.95)', navBg: 'rgba(28,16,21,0.95)'
-  },
-  {
-    key: 'sunset-fire', name: 'Sunset Fire', desc: 'Passion & drive.',
-    bg: '#110808', card: '#1a0e0c', accent: '#f97316', accent2: '#ef4444', accent3: '#fbbf24',
-    text: '#f1e2dc', dim: '#b89888', bright: '#fff', border: 'rgba(249,115,22,0.08)',
-    banner: 'linear-gradient(135deg, #f97316, #ef4444, #dc2626)',
-    headerBg: 'rgba(17,8,8,0.95)', navBg: 'rgba(26,14,12,0.95)'
-  },
-  {
-    key: 'neon-cyber', name: 'Neon Cyber', desc: 'Futuristic edge.',
-    bg: '#050510', card: '#0a0a1a', accent: '#00ff88', accent2: '#00d4ff', accent3: '#ff00ff',
-    text: '#d0f0e0', dim: '#6a9a80', bright: '#fff', border: 'rgba(0,255,136,0.06)',
-    banner: 'linear-gradient(135deg, #00ff88, #00d4ff, #0088ff)',
-    headerBg: 'rgba(5,5,16,0.95)', navBg: 'rgba(10,10,26,0.95)'
-  },
-  {
-    key: 'arctic-light', name: 'Arctic Light', desc: 'Clean & minimal.',
-    bg: '#f0f2f5', card: '#ffffff', accent: '#2563eb', accent2: '#7c3aed', accent3: '#059669',
-    text: '#1e293b', dim: '#64748b', bright: '#0f172a', border: 'rgba(0,0,0,0.08)',
-    banner: 'linear-gradient(135deg, #2563eb, #3b82f6, #60a5fa)',
-    headerBg: 'rgba(240,242,245,0.95)', navBg: 'rgba(255,255,255,0.95)'
-  }
+const T = [
+  { key:'amber-gold', name:'Amber Gold', desc:'Default. Bold & warm.', bg:'#0a0a0f', card:'#12121a', a:'#f59e0b', a2:'#8b5cf6', a3:'#10b981', tx:'#e2e8f0', dm:'#94a3b8', br:'#fff', bdr:'rgba(255,255,255,0.06)', ban:'linear-gradient(135deg,#f59e0b,#d97706,#b45309)', hbg:'rgba(10,10,15,0.85)', nbg:'rgba(18,18,26,0.85)', glow1:'rgba(245,158,11,0.06)', glow2:'rgba(139,92,246,0.04)' },
+  { key:'ocean-blue', name:'Ocean Blue', desc:'Cool & focused.', bg:'#080c14', card:'#0f1520', a:'#3b82f6', a2:'#06b6d4', a3:'#22d3ee', tx:'#e2e8f0', dm:'#8ba3c4', br:'#fff', bdr:'rgba(59,130,246,0.08)', ban:'linear-gradient(135deg,#3b82f6,#2563eb,#1d4ed8)', hbg:'rgba(8,12,20,0.85)', nbg:'rgba(15,21,32,0.85)', glow1:'rgba(59,130,246,0.06)', glow2:'rgba(6,182,212,0.04)' },
+  { key:'emerald-green', name:'Emerald Green', desc:'Growth energy.', bg:'#060f0a', card:'#0d1a12', a:'#10b981', a2:'#34d399', a3:'#6ee7b7', tx:'#e2e8f0', dm:'#86b89e', br:'#fff', bdr:'rgba(16,185,129,0.08)', ban:'linear-gradient(135deg,#10b981,#059669,#047857)', hbg:'rgba(6,15,10,0.85)', nbg:'rgba(13,26,18,0.85)', glow1:'rgba(16,185,129,0.06)', glow2:'rgba(52,211,153,0.04)' },
+  { key:'royal-purple', name:'Royal Purple', desc:'Ambition & power.', bg:'#0c0815', card:'#140f1f', a:'#a78bfa', a2:'#c084fc', a3:'#e879f9', tx:'#e2e8f0', dm:'#a09abc', br:'#fff', bdr:'rgba(167,139,250,0.08)', ban:'linear-gradient(135deg,#a78bfa,#8b5cf6,#7c3aed)', hbg:'rgba(12,8,21,0.85)', nbg:'rgba(20,15,31,0.85)', glow1:'rgba(167,139,250,0.06)', glow2:'rgba(192,132,252,0.04)' },
+  { key:'rose-pink', name:'Rose Pink', desc:'Soft & confident.', bg:'#120a0d', card:'#1c1015', a:'#f472b6', a2:'#fb7185', a3:'#fda4af', tx:'#f1e4e8', dm:'#b89aa4', br:'#fff', bdr:'rgba(244,114,182,0.08)', ban:'linear-gradient(135deg,#f472b6,#ec4899,#db2777)', hbg:'rgba(18,10,13,0.85)', nbg:'rgba(28,16,21,0.85)', glow1:'rgba(244,114,182,0.06)', glow2:'rgba(251,113,133,0.04)' },
+  { key:'sunset-fire', name:'Sunset Fire', desc:'Passion & drive.', bg:'#110808', card:'#1a0e0c', a:'#f97316', a2:'#ef4444', a3:'#fbbf24', tx:'#f1e2dc', dm:'#b89888', br:'#fff', bdr:'rgba(249,115,22,0.08)', ban:'linear-gradient(135deg,#f97316,#ef4444,#dc2626)', hbg:'rgba(17,8,8,0.85)', nbg:'rgba(26,14,12,0.85)', glow1:'rgba(249,115,22,0.06)', glow2:'rgba(239,68,68,0.04)' },
+  { key:'neon-cyber', name:'Neon Cyber', desc:'Futuristic edge.', bg:'#050510', card:'#0a0a1a', a:'#00ff88', a2:'#00d4ff', a3:'#ff00ff', tx:'#d0f0e0', dm:'#6a9a80', br:'#fff', bdr:'rgba(0,255,136,0.06)', ban:'linear-gradient(135deg,#00ff88,#00d4ff,#0088ff)', hbg:'rgba(5,5,16,0.85)', nbg:'rgba(10,10,26,0.85)', glow1:'rgba(0,255,136,0.06)', glow2:'rgba(0,212,255,0.04)' },
+  { key:'arctic-light', name:'Arctic Light', desc:'Clean & minimal. Light mode.', bg:'#f0f2f5', card:'#ffffff', a:'#2563eb', a2:'#7c3aed', a3:'#059669', tx:'#1e293b', dm:'#64748b', br:'#0f172a', bdr:'rgba(0,0,0,0.08)', ban:'linear-gradient(135deg,#2563eb,#3b82f6,#60a5fa)', hbg:'rgba(240,242,245,0.9)', nbg:'rgba(255,255,255,0.9)', glow1:'rgba(37,99,235,0.04)', glow2:'rgba(124,58,237,0.03)' }
 ];
 
-const grid = document.getElementById('grid');
+const g = document.getElementById('grid');
 
-themes.forEach(t => {
-  const isLight = t.key === 'arctic-light';
-  const cardBorder = `1px solid ${t.border}`;
-  const statBg = isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.03)';
+T.forEach(t => {
+  const lt = t.key==='arctic-light';
+  const sb = lt ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.03)';
+  const banTx = lt ? '#fff' : '#000';
+  const notchBg = lt ? '#ddd' : '#000';
+  const stTx = lt ? '#64748b' : '#ffffff90';
 
-  grid.innerHTML += `
-  <div class="theme-demo" style="border-color: ${t.accent}40;">
-    <div class="phone-frame" style="background: ${t.bg};">
-
-      <!-- Header -->
-      <div class="phone-header" style="background: ${t.headerBg}; border: ${cardBorder}; border-radius: 12px 12px 0 0;">
-        <div class="phone-logo" style="background: linear-gradient(135deg, ${t.accent}, ${t.accent2}); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">KIKOU</div>
-        <div class="phone-motto" style="color: ${t.dim};">"God has given you this opportunity."</div>
+  g.innerHTML += `
+  <div>
+    <div class="phone" style="background:${t.bg}; border: 1px solid ${t.a}22;">
+      <div class="glow-bg" style="background: radial-gradient(ellipse at 30% 20%, ${t.glow1} 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, ${t.glow2} 0%, transparent 50%);"></div>
+      <div class="notch" style="background:${notchBg};"></div>
+      <div class="status-bar" style="color:${stTx}; padding-top: 28px;"><span>21:43</span><span>&#128267; 80%</span></div>
+      <div class="app-header" style="background:${t.hbg}; border-bottom:1px solid ${t.bdr};">
+        <div class="app-logo" style="background:linear-gradient(135deg,${t.a},${t.a2}); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">KIKOU</div>
+        <div class="app-time" style="color:${t.a};">Sun, Mar 8</div>
+        <div class="app-motto" style="color:${t.dm};">"God has given you this opportunity."</div>
       </div>
-
-      <!-- Nav -->
-      <div class="phone-nav" style="background: ${t.navBg}; border: ${cardBorder}; border-top: none;">
-        <span style="color: ${t.accent}; background: ${t.accent}18;">Dashboard</span>
-        <span style="color: ${t.dim};">Morning</span>
-        <span style="color: ${t.dim};">Career</span>
-        <span style="color: ${t.dim};">French</span>
-        <span style="color: ${t.dim};">Chat</span>
+      <div class="app-nav" style="background:${t.nbg}; border-bottom:1px solid ${t.bdr};">
+        <span style="color:${t.a}; background:${t.a}18;">Dashboard</span>
+        <span style="color:${t.dm};">Morning</span>
+        <span style="color:${t.dm};">Career</span>
+        <span style="color:${t.dm};">French</span>
+        <span style="color:${t.dm};">Mindset</span>
+        <span style="color:${t.dm};">Chat</span>
       </div>
-
-      <!-- Banner -->
-      <div class="phone-banner" style="background: ${t.banner}; color: ${isLight ? '#fff' : '#000'};">
-        God has given you this opportunity for a reason.
-      </div>
-
-      <!-- Stats -->
-      <div class="phone-card" style="background: ${t.card}; border: ${cardBorder};">
-        <div class="phone-card-title" style="color: ${t.text};">&#9889; Power Stats</div>
-        <div class="mini-stat">
-          <div class="mini-stat-box" style="background: ${statBg}; border: ${cardBorder};">
-            <div class="mini-stat-num" style="background: linear-gradient(135deg, ${t.accent}, ${t.accent2}); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">7</div>
-            <div class="mini-stat-label" style="color: ${t.dim};">Streak</div>
+      <div class="app-content">
+        <div class="app-banner" style="background:${t.ban}; color:${banTx};">God has given you this opportunity for a reason. Don't waste it.</div>
+        <div class="app-card" style="background:${t.card}; border:1px solid ${t.bdr};">
+          <div class="app-card-title" style="color:${t.tx};">&#9889; Today's Power Stats</div>
+          <div class="stats-row">
+            <div class="stat-item" style="background:${sb}; border:1px solid ${t.bdr};"><div class="stat-num" style="background:linear-gradient(135deg,${t.a},${t.a2}); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">7</div><div class="stat-lbl" style="color:${t.dm};">Day Streak</div></div>
+            <div class="stat-item" style="background:${sb}; border:1px solid ${t.bdr};"><div class="stat-num" style="background:linear-gradient(135deg,${t.a},${t.a2}); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">240</div><div class="stat-lbl" style="color:${t.dm};">Kikou XP</div></div>
+            <div class="stat-item" style="background:${sb}; border:1px solid ${t.bdr};"><div class="stat-num" style="background:linear-gradient(135deg,${t.a},${t.a2}); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">3</div><div class="stat-lbl" style="color:${t.dm};">Level</div></div>
           </div>
-          <div class="mini-stat-box" style="background: ${statBg}; border: ${cardBorder};">
-            <div class="mini-stat-num" style="background: linear-gradient(135deg, ${t.accent}, ${t.accent2}); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">240</div>
-            <div class="mini-stat-label" style="color: ${t.dim};">XP</div>
-          </div>
-          <div class="mini-stat-box" style="background: ${statBg}; border: ${cardBorder};">
-            <div class="mini-stat-num" style="background: linear-gradient(135deg, ${t.accent}, ${t.accent2}); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">3</div>
-            <div class="mini-stat-label" style="color: ${t.dim};">Level</div>
-          </div>
+          <div style="display:flex; justify-content:space-between; font-size:7px; color:${t.dm};"><span>Progress to next level</span><span>240/300 XP</span></div>
+          <div class="prog" style="background:${sb};"><div class="prog-fill" style="width:80%; background:linear-gradient(90deg,${t.a},${t.a2});"></div></div>
         </div>
-        <div class="mini-progress" style="background: ${statBg};">
-          <div class="mini-progress-fill" style="background: linear-gradient(90deg, ${t.accent}, ${t.accent2});"></div>
+        <div class="app-card" style="background:${t.card}; border:1px solid ${t.bdr};">
+          <div class="app-card-title" style="color:${t.tx};">&#128293; Habit Tracker</div>
+          <div class="habit" style="color:${t.tx}; border-bottom:1px solid ${t.bdr};"><span>Wake up before 7:30</span><div class="habit-check" style="background:${t.a3}; color:#000;">&#10003;</div></div>
+          <div class="habit" style="color:${t.tx}; border-bottom:1px solid ${t.bdr};"><span>Exercise / Walk 30 min</span><div class="habit-check" style="background:${t.a3}; color:#000;">&#10003;</div></div>
+          <div class="habit" style="color:${t.tx}; border-bottom:1px solid ${t.bdr};"><span>French practice</span><div class="habit-check" style="background:${t.a3}; color:#000;">&#10003;</div></div>
+          <div class="habit" style="color:${t.tx};"><span>Talk to someone new</span><div class="habit-check" style="border:1.5px solid ${t.dm};"></div></div>
         </div>
-      </div>
-
-      <!-- Habits -->
-      <div class="phone-card" style="background: ${t.card}; border: ${cardBorder};">
-        <div class="phone-card-title" style="color: ${t.text};">&#128293; Habits</div>
-        <div class="mini-habit" style="color: ${t.text}; border-bottom: ${cardBorder};">
-          <span>Wake up before 7:30</span>
-          <div class="mini-check" style="background: ${t.accent3}; border-color: ${t.accent3}; color: #000;">&#10003;</div>
+        <div class="app-card" style="background:${t.card}; border:1px solid ${t.bdr};">
+          <div class="app-card-title" style="color:${t.tx};">&#127467;&#127479; French Word</div>
+          <div class="fr-word" style="background:${t.a2}15; border:1px solid ${t.a2}30;"><div class="fr-text" style="color:${t.a2};">R&eacute;seau</div><div class="fr-meaning" style="color:${t.dm};">Network &mdash; Il faut d&eacute;velopper son r&eacute;seau professionnel.</div></div>
         </div>
-        <div class="mini-habit" style="color: ${t.text}; border-bottom: ${cardBorder};">
-          <span>French practice</span>
-          <div class="mini-check" style="background: ${t.accent3}; border-color: ${t.accent3}; color: #000;">&#10003;</div>
-        </div>
-        <div class="mini-habit" style="color: ${t.text};">
-          <span>Talk to someone new</span>
-          <div class="mini-check" style="border-color: ${t.dim};"></div>
+        <div class="app-card" style="background:${t.card}; border:1px solid ${t.bdr};">
+          <div class="app-card-title" style="color:${t.tx};">&#127908; Talk to Kikou</div>
+          <div class="mini-orb" style="background:linear-gradient(135deg,${t.a}22,${t.a2}18); border:2px solid ${t.a}44;">&#127908;</div>
+          <div class="chat-bubble" style="background:linear-gradient(135deg,${t.a}18,${t.a2}10); border:1px solid ${t.a}20; color:${t.br};"><div class="chat-sender" style="color:${t.a};">KIKOU (FUTURE YOU)</div>You're an ENFP powerhouse, Rachit. Stop playing small. Show up and shine, fr&egrave;re. &#128293;</div>
         </div>
       </div>
-
-      <!-- Chat preview -->
-      <div class="phone-card" style="background: ${t.card}; border: ${cardBorder};">
-        <div class="phone-card-title" style="color: ${t.text};">&#127908; Talk to Kikou</div>
-        <div class="phone-chat-msg" style="background: linear-gradient(135deg, ${t.accent}1a, ${t.accent2}12); border: 1px solid ${t.accent}22; color: ${t.bright};">
-          <div style="font-size: 7px; color: ${t.accent}; font-weight: 700; margin-bottom: 3px;">KIKOU</div>
-          You're an ENFP powerhouse, Rachit. Stop playing small. Show up today.
-        </div>
-      </div>
-
+      <div class="floating-dot" style="background:linear-gradient(135deg,${t.a},${t.a}cc); color:#000;">&#127908;</div>
     </div>
-    <div class="theme-name-bar" style="background: ${t.card}; color: ${t.accent};">${t.name}</div>
-    <div class="theme-desc-bar" style="background: ${t.card}; color: ${t.dim};">${t.desc}</div>
+    <div class="theme-label" style="color:${t.a};">${t.name}</div>
+    <div class="theme-desc" style="color:${t.dm};">${t.desc}</div>
   </div>`;
 });
 </script>
